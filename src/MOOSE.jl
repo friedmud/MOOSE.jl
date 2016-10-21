@@ -8,7 +8,7 @@ export Node, Element, Mesh
 
 export buildSquare
 
-export System, addVariable!
+export Variable, System, addVariable!
 
 include("mesh/Mesh.jl")
 include("mesh/Generation.jl")
