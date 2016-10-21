@@ -7,5 +7,5 @@ abstract DofObject
 
 "Return the list of dofs on this DofObject"
 function dofs(dof_object::DofObject)
-  return dof_object.dofs
+    return dof_object.dofs
 end
