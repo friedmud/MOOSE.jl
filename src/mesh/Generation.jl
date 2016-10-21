@@ -58,7 +58,7 @@ function buildSquare(xmin::Real, xmax::Real, ymin::Real, ymax::Real, n_elems_x::
             end
 
             # Top
-            if x_idx == n_nodes_y
+            if y_idx == n_nodes_y
                 push!(boundary_info.node_list[3], node)
             end
 
@@ -101,12 +101,12 @@ function buildSquare(xmin::Real, xmax::Real, ymin::Real, ymax::Real, n_elems_x::
             end
 
             # Right
-            if x_idx == n_nodes_x
+            if x_idx == n_elems_x
                 push!(boundary_info.side_list[2], ElemSidePair(element, 2))
             end
 
             # Top
-            if x_idx == n_nodes_y
+            if y_idx == n_elems_y
                 push!(boundary_info.side_list[3], ElemSidePair(element, 3))
             end
 
@@ -119,6 +119,9 @@ function buildSquare(xmin::Real, xmax::Real, ymin::Real, ymax::Real, n_elems_x::
             element_id += 1
         end
     end
+
+    mesh.elements = elements
+    mesh.nodes = nodes
 
     return mesh
 end
