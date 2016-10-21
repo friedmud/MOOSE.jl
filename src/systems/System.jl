@@ -35,6 +35,17 @@ end
 
     The main purpose of this function is to distribute the DoFs across the mesh.
 """
-function initialize!(system::System, )
-    # Go through each node in
+function initialize!(system::System)
+    # Go through each node in the mesh and set aside DoFs.
+    # These will be "node major"
+    n_vars = length(system.variables)
+
+    current_dof = 1
+    for node in system.mesh.nodes
+        node.dofs = [x for x in current_dof:((n_vars+current_dof)-1)]
+        current_dof += n_vars
+    end
+
+    # Save off the total number of DoFs distributed
+    system.n_dofs = current_dof-1
 end
