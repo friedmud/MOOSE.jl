@@ -80,15 +80,32 @@ function initialize!(sys::System)
     sys.initialized = true
 end
 
+"""
+    Grab all of the DoF indices for the current element for a give variable
+"""
+function connectedDofIndices(elem::Element, var::Variable)
+    [ node.dofs[var.id] for node in elem.nodes ]
+end
 
 """
     Reinitialize all of the data and objects in the system for the current Element
 """
-function reinit!(sys::System, elem::Element)
-#    coords = Vec{2, Float64}[Vec{2}((-1, -1)),
-#                             Vec{2}((1, -1)),
-#                             Vec{2}((1, 1)),
-#                             Vec{2}((-1, 1))]
+function reinit!(sys::System, elem::Element, solution::Array)
+    # Grab all of the coordinattes for the current element
+    coords = [node.coords for node in elem.nodes]
 
-#    reinit!(sys.fe_values, )
+    # Reinitialize the shape functions
+    JuAFEM.reinit!(sys.fe_values, coords)
+
+    # Reinitialize the variable values
+    for var in sys.variables
+        # Need to grab the dof_indices for this variable on this element
+        dof_indices = connectedDofIndices(elem, var)
+
+        # Now pull out those pieces of the solution vector
+        dof_values = [ solution[dof_index] for dof_index in dof_indices ]
+
+        # Recompute the Variable values
+        reinit!(var, sys.fe_values, dof_values)
+    end
 end

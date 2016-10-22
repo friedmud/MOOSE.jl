@@ -8,7 +8,7 @@ export Node, Element, Mesh
 
 export buildSquare
 
-export Variable, System, addVariable!, initialize!
+export Variable, System, addVariable!, addKernel!, initialize!
 
 export Solver, solve!, JuliaDenseImplicitSolver
 
