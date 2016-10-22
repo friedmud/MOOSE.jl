@@ -20,30 +20,39 @@ type System
     " The Quadrature Rule "
     q_rule::QuadratureRule
 
+    " The Function Space "
+    func_space::FunctionSpace
+
+    " The Current FEValues "
+    fe_values::FECellValues
+
     " A Mesh must be provided "
-    System(mesh::Mesh) = new(mesh,
-                             Array{Variable}(0),
-                             Array{Kernel}(0),
-                             0,
-                             false,
-                             QuadratureRule{2,RefCube}(:legendre, 2))
+    System(mesh::Mesh) = (x = new(mesh,
+                                  Array{Variable}(0),
+                                  Array{Kernel}(0),
+                                  0,
+                                  false,
+                                  QuadratureRule{2,RefCube}(:legendre, 2),
+                                  Lagrange{2, RefCube, 1}()) ;
+                          x.fe_values = FECellValues(x.q_rule, x.func_space);
+                          return x)
 end
 
 " Add a Variable named name to the System "
-function addVariable!(system::System, name::String)
-    n_vars = length(system.variables)
+function addVariable!(sys::System, name::String)
+    n_vars = length(sys.variables)
 
     var = Variable(n_vars+1, name)
 
-    push!(system.variables, var)
+    push!(sys.variables, var)
 
     return var
 end
 
 
 " Add a Kernel to the System "
-function addKernel!(system::System, kernel::Kernel)
-    push!(system.kernels, kernel)
+function addKernel!(sys::System, kernel::Kernel)
+    push!(sys.kernels, kernel)
 end
 
 
@@ -53,28 +62,33 @@ end
 
     The main purpose of this function is to distribute the DoFs across the mesh.
 """
-function initialize!(system::System)
+function initialize!(sys::System)
     # Go through each node in the mesh and set aside DoFs.
     # These will be "node major"
-    n_vars = length(system.variables)
+    n_vars = length(sys.variables)
 
     current_dof = 1
-    for node in system.mesh.nodes
+    for node in sys.mesh.nodes
         node.dofs = [x for x in current_dof:((n_vars+current_dof)-1)]
         current_dof += n_vars
     end
 
     # Save off the total number of DoFs distributed
-    system.n_dofs = current_dof-1
+    sys.n_dofs = current_dof-1
 
     # Set a flag that this System is initialized
-    system.initialized = true
+    sys.initialized = true
 end
 
 
 """
     Reinitialize all of the data and objects in the system for the current Element
 """
-function reinit!(system::System, elem::Element)
+function reinit!(sys::System, elem::Element)
+#    coords = Vec{2, Float64}[Vec{2}((-1, -1)),
+#                             Vec{2}((1, -1)),
+#                             Vec{2}((1, 1)),
+#                             Vec{2}((-1, 1))]
 
+#    reinit!(sys.fe_values, )
 end

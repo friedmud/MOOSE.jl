@@ -38,7 +38,7 @@ function buildSquare(xmin::Real, xmax::Real, ymin::Real, ymax::Real, n_elems_x::
             y = ymin + ((y_idx-1) * y_increment)
 
             # Create the node
-            node = Node(node_id, [x,y], [])
+            node = Node{2}(node_id, Vec{2}((x,y)), [])
 
             # Save it off
             nodes[node_id] = node

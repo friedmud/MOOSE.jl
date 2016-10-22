@@ -2,16 +2,16 @@
     mesh = buildSquare(0, 1, 0, 1, 2, 2)
 
     # Element 1
-    @test mesh.elements[1].nodes[1].coords == [0,0]
-    @test mesh.elements[1].nodes[2].coords == [0.5,0]
-    @test mesh.elements[1].nodes[3].coords == [0.5,0.5]
-    @test mesh.elements[1].nodes[4].coords == [0,0.5]
+    @test mesh.elements[1].nodes[1].coords == Vec{2}((0.,0.))
+    @test mesh.elements[1].nodes[2].coords == Vec{2}((0.5,0.))
+    @test mesh.elements[1].nodes[3].coords == Vec{2}((0.5,0.5))
+    @test mesh.elements[1].nodes[4].coords == Vec{2}((0.,0.5))
 
     # Element 4
-    @test mesh.elements[4].nodes[1].coords == [0.5,0.5]
-    @test mesh.elements[4].nodes[2].coords == [1,0.5]
-    @test mesh.elements[4].nodes[3].coords == [1,1]
-    @test mesh.elements[4].nodes[4].coords == [.5,1]
+    @test mesh.elements[4].nodes[1].coords == Vec{2}((0.5,0.5))
+    @test mesh.elements[4].nodes[2].coords == Vec{2}((1.,0.5))
+    @test mesh.elements[4].nodes[3].coords == Vec{2}((1.,1.))
+    @test mesh.elements[4].nodes[4].coords == Vec{2}((.5,1.))
 
     # Boundary Info
     boundary_info = mesh.boundary_info

@@ -1,10 +1,10 @@
 "Represents a point in physical space"
-type Node <: DofObject
+type Node{dim} <: DofObject
     "A unique ID for the Node"
     id::Int64
 
     "x,y,z coordinates"
-    coords::Array{Float64}
+    coords::Vec{2, Float64}
 
     "Degrees of freedom assigned to this Node"
     dofs::Array{Int64}
