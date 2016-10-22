@@ -17,8 +17,11 @@ type System
     " Whether or not initialize!() has been called for this System "
     initialized::Bool
 
+    " The Quadrature Rule "
+    q_rule::QuadratureRule
+
     " A Mesh must be provided "
-    System(mesh::Mesh) = new(mesh, Array{Variable}(0), 0, false)
+    System(mesh::Mesh) = new(mesh, Array{Variable}(0), 0, false, QuadratureRule{2,RefCube}(:legendre, 2))
 end
 
 " Add a Variable named name to the System "
