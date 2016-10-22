@@ -29,7 +29,7 @@ function computeJacobian!(jacobian::Matrix{Float64}, kernel::Diffusion, v::Varia
 
     # Derivative of the residual WRT the variable it's acting on
     if v.id == u.id
-        for qp in 1:u_n_qp
+        for qp in 1:n_qp
             for i in 1:u_n_dofs
                 for j in 1:v_n_dofs
                     jacobian[i,j] += v.grad_phi[qp][j] ⋅ u.grad_phi[qp][i] * u.JxW[qp]

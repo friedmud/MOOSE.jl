@@ -35,7 +35,23 @@
     computeResidual!(residual, diffusion)
 
     # Verified by running the same problem in MOOSE
+    moose_residual = [-0.5, 0.5, 0.5, -0.5]
+
     for i in 1:length(residual)
-        @test residual[i]-[-0.5, 0.5, 0.5, -0.5][i] < 1e-10
+        @test abs(residual[i]-moose_residual[i]) < 1e-10
+    end
+
+    jacobian = zeros(Float64, var.n_dofs, var.n_dofs)
+
+    computeJacobian!(jacobian, diffusion, var)
+
+
+    moose_jac = [0.666666666667 -0.166666666667 -0.333333333333 -0.166666666667;
+                 -0.166666666667 0.666666666667 -0.166666666667 -0.333333333333;
+                 -0.333333333333 -0.166666666667 0.666666666667 -0.166666666667;
+                 -0.166666666667 -0.333333333333 -0.166666666667 0.666666666667]
+
+    for i in 1:length(jacobian)
+        @test abs(jacobian[i] - moose_jac[i]) < 1e-9
     end
 end

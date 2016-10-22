@@ -12,7 +12,7 @@ export Variable, System, addVariable!, initialize!
 
 export Solver, solve!, JuliaDenseImplicitSolver
 
-export Kernel, computeResidual!, computeJaocbian!, computeResidualAndJacobian!, Diffusion
+export Kernel, computeResidual!, computeJacobian!, computeResidualAndJacobian!, Diffusion
 
 include("mesh/Mesh.jl")
 include("mesh/Generation.jl")

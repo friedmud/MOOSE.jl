@@ -20,8 +20,11 @@ end
     Should be overridden!
 
     Inherited types should fill in the Jacobian vector
+
+    Computes the derivative of the residual for `kernel` WRT the variable `v`
+    and stores it in `jacobian`
 """
-function computeJacobian!(jacobian::Matrix{Float64}, kernel::Kernel)
+function computeJacobian!(jacobian::Matrix{Float64}, kernel::Kernel, v::Variable)
 end
 
 """
