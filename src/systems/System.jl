@@ -11,6 +11,9 @@ type System
     " All of the Kernels belonging to this System "
     kernels::Array{Kernel}
 
+    " All of the BoundaryConditions belonging to this System "
+    bcs::Array{BoundaryCondition}
+
     " The total number of degrees of freedom "
     n_dofs::Int64
 
@@ -30,6 +33,7 @@ type System
     System(mesh::Mesh) = (x = new(mesh,
                                   Array{Variable}(0),
                                   Array{Kernel}(0),
+                                  Array{BoundaryCondition}(0),
                                   0,
                                   false,
                                   QuadratureRule{2,RefCube}(:legendre, 2),
@@ -53,6 +57,11 @@ end
 " Add a Kernel to the System "
 function addKernel!(sys::System, kernel::Kernel)
     push!(sys.kernels, kernel)
+end
+
+" Add a BC to the System "
+function addBC!(sys::System, bc::BoundaryCondition)
+    push!(sys.bcs, bc)
 end
 
 
@@ -107,5 +116,21 @@ function reinit!(sys::System, elem::Element, solution::Array)
 
         # Recompute the Variable values
         reinit!(var, sys.fe_values, dof_indices, dof_values)
+    end
+end
+
+
+
+"""
+    Reinitialize all of the data and objects in the system for the current Node
+"""
+function reinit!(sys::System, node::Node, solution::Array)
+    # Reinitialize the variable values
+    for var in sys.variables
+        dof_index = node.dofs[var.id]
+        dof_value = solution[dof_index]
+
+        # Recompute the Variable values
+        reinit!(var, dof_index, dof_value)
     end
 end

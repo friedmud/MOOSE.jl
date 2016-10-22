@@ -36,5 +36,5 @@ function solve!(solver::JuliaDenseImplicitSolver)
     @assert solver.initialized
 
     # Direct solve
-    solver.solution = \(solver.mat, solver.rhs)
+    solver.solution = \(solver.mat, -solver.rhs)
 end

@@ -14,3 +14,5 @@ include("test_Kernel.jl")
 include("test_Assembly.jl")
 
 include("test_Diffusion.jl")
+
+include("test_DirichletBC.jl")

@@ -29,6 +29,12 @@ type Variable
     " Current number of quadrature points on this element "
     n_qp::Int64
 
+    " The value at a node (for use in NodalBCs) "
+    nodal_value::Float64
+
+    " The dof at a node (for use with NodalBCs) "
+    nodal_dof::Int64
+
     Variable(id::Int64, name::String) = new(id, name,
                                             Array{Float64}(0),
                                             Array{Vec{2,Float64}}(0),
@@ -37,6 +43,8 @@ type Variable
                                             Array{Float64,1}(0),
                                             Array{Int64}(0),
                                             0,
+                                            0,
+                                            0.,
                                             0)
 end
 
@@ -54,4 +62,10 @@ function reinit!(var::Variable, fe_values::FECellValues, dof_indices::Array{Int6
     var.dofs = dof_indices
     var.n_dofs = length(dof_values)
     var.n_qp = n_qp
+end
+
+" Recompute all of the data inside of a Variable for a given Node "
+function reinit!(var::Variable, dof_index::Int64, dof_value::Float64)
+    var.nodal_dof = dof_index
+    var.nodal_value = dof_value
 end

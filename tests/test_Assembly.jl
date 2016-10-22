@@ -17,6 +17,7 @@
 
     MOOSE.assembleResidualAndJacobian(solver)
 
+    # Correct, though I wish there were more precision.  No time right now...
     jac = [0.666667 -0.166667 0.0 -0.166667 -0.333333 0.0 0.0 0.0 0.0;
      -0.166667 1.33333 -0.166667 -0.333333 -0.333333 -0.333333 0.0 0.0 0.0;
      0.0 -0.166667 0.666667 0.0 -0.333333 -0.166667 0.0 0.0 0.0;
@@ -27,7 +28,7 @@
      0.0 0.0 0.0 -0.333333 -0.333333 -0.333333 -0.166667 1.33333 -0.166667;
      0.0 0.0 0.0 0.0 -0.333333 -0.166667 0.0 -0.166667 0.666667]
 
-    for i in length(jac)
-        @test abs(solver.mat[i] - jac[i]) < 1e-6
+    for i in 1:length(jac)
+        @test abs(solver.mat[i] - jac[i]) < 1e-5
     end
 end

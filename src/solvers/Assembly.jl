@@ -50,4 +50,47 @@ function assembleResidualAndJacobian(solver::Solver)
             end
         end
     end
+
+    # Now apply BCs
+
+    boundary_info = mesh.boundary_info
+    bcs = sys.bcs
+
+    # First: get the set of boundary IDs we need to operate on:
+    bids = Set{Int64}()
+    for bc in bcs
+        union!(bids, bc.bids)
+    end
+
+    # Reusable storage for calling residual and jacobian calculations on NodalBCs
+    temp_residual = Array{Float64}(1)
+    temp_jacobian = Matrix{Float64}((1,1))
+
+    # Now go over each nodeset and apply the BCs
+    for bid in bids
+
+        # Grab the nodeset for this bid
+        node_list = boundary_info.node_list[bid]
+
+        # Iterate over each node and apply the boundary conditions
+        for node in node_list
+            reinit!(sys, node, solution)
+
+            # Apply all of the BCs that should be applied here
+            for bc in bcs
+                if bid in bc.bids
+                    computeResidualAndJacobian!(temp_residual, temp_jacobian, bc)
+
+                    # First set the residual
+                    solver.rhs[bc.u.nodal_dof] = temp_residual[1]
+
+                    # Now - we need to zero out the row in the matrix corresponding to this dof
+                    solver.mat[bc.u.nodal_dof,:] = 0
+
+                    # And put this piece in place
+                    solver.mat[bc.u.nodal_dof,bc.u.nodal_dof] = temp_jacobian[1,1]
+                end
+            end
+        end
+    end
 end
