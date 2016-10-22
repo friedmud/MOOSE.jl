@@ -11,4 +11,6 @@ include("test_System.jl")
 include("test_Solver.jl")
 include("test_JuliaDenseImplicitSolver.jl")
 include("test_Kernel.jl")
+include("test_Assembly.jl")
+
 include("test_Diffusion.jl")

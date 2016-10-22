@@ -18,4 +18,8 @@ initialize!(solver)
 
 MOOSE.reinit!(diffusion_system, mesh.elements[1], solver.solution)
 
-solve!(solver)
+MOOSE.assembleResidualAndJacobian(solver)
+
+println(solver.mat)
+
+#solve!(solver)

@@ -103,9 +103,9 @@ function reinit!(sys::System, elem::Element, solution::Array)
         dof_indices = connectedDofIndices(elem, var)
 
         # Now pull out those pieces of the solution vector
-        dof_values = [ solution[dof_index] for dof_index in dof_indices ]
+        dof_values = solution[dof_indices]
 
         # Recompute the Variable values
-        reinit!(var, sys.fe_values, dof_values)
+        reinit!(var, sys.fe_values, dof_indices, dof_values)
     end
 end

@@ -25,6 +25,8 @@ include("kernels/Kernel.jl")
 include("systems/System.jl")
 include("solvers/Solver.jl")
 include("solvers/JuliaDenseImplicitSolver.jl")
+include("solvers/Assembly.jl")
+
 include("kernels/Diffusion.jl")
 
 end

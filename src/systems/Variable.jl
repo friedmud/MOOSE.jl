@@ -20,6 +20,9 @@ type Variable
     " Determinant of the Jacobian pre-multiplied by the weights "
     JxW::Array{Float64,1}
 
+    " Current DoFs "
+    dofs::Array{Int64}
+
     " Current number of dofs on this element "
     n_dofs::Int64
 
@@ -32,12 +35,13 @@ type Variable
                                             Array{Array{Float64}}(0),
                                             Array{Array{Vec{2,Float64}},1}(0),
                                             Array{Float64,1}(0),
+                                            Array{Int64}(0),
                                             0,
                                             0)
 end
 
 " Recompute all of the data inside of a Variable for a given element "
-function reinit!(var::Variable, fe_values::FECellValues, dof_values::Array{Float64})
+function reinit!(var::Variable, fe_values::FECellValues, dof_indices::Array{Int64}, dof_values::Array{Float64})
     var.phi = fe_values.N
     var.grad_phi = fe_values.dNdx
     var.JxW = fe_values.detJdV
@@ -47,6 +51,7 @@ function reinit!(var::Variable, fe_values::FECellValues, dof_values::Array{Float
     var.value = [function_value(fe_values, qp, dof_values) for qp in 1:n_qp]
     var.grad = [function_gradient(fe_values, qp, dof_values) for qp in 1:n_qp]
 
+    var.dofs = dof_indices
     var.n_dofs = length(dof_values)
     var.n_qp = n_qp
 end

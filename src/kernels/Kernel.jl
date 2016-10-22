@@ -34,5 +34,5 @@ end
 """
 function computeResidualAndJacobian!(residual::Vector{Float64}, jacobian::Matrix{Float64}, kernel::Kernel)
     computeResidual!(residual, kernel)
-    computeJacobian!(jacobian, kernel)
+    computeJacobian!(jacobian, kernel, kernel.u)
 end

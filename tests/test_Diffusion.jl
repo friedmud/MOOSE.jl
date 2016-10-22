@@ -19,7 +19,7 @@
 
     nodal_values = [0., 1., 1., 0.]
 
-    MOOSE.reinit!(var, fe_values, nodal_values)
+    MOOSE.reinit!(var, fe_values, [0,0,0,0], nodal_values)
 
     residual = zeros(Float64, var.n_dofs)
 
