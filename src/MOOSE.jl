@@ -10,11 +10,12 @@ export buildSquare
 
 export Variable, System, addVariable!, initialize!
 
-export Solver, solve!
+export Solver, solve!, JuliaDenseImplicitSolver
 
 include("mesh/Mesh.jl")
 include("mesh/Generation.jl")
 include("systems/System.jl")
 include("solvers/Solver.jl")
+include("solvers/JuliaDenseImplicitSolver.jl")
 
 end

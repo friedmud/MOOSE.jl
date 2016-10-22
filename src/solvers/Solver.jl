@@ -3,7 +3,7 @@
 """
 abstract Solver
 
-" Should be overriden by the Solver implementations to initialize their data "
+" Should be overridden by the Solver implementations to initialize their data "
 function initialize!(solver::Solver)
 end
 

@@ -7,3 +7,9 @@ diffusion_system = System(mesh)
 u = addVariable!(diffusion_system, "u")
 
 initialize!(diffusion_system)
+
+solver = JuliaDenseImplicitSolver(diffusion_system)
+
+initialize!(solver)
+
+solve!(solver)

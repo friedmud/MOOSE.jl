@@ -14,8 +14,11 @@ type System
     " The total number of degrees of freedom "
     n_dofs::Int64
 
+    " Whether or not initialize!() has been called for this System "
+    initialized::Bool
+
     " A Mesh must be provided "
-    System(mesh::Mesh) = new(mesh, Array{Variable}(0))
+    System(mesh::Mesh) = new(mesh, Array{Variable}(0), 0, false)
 end
 
 " Add a Variable named name to the System "
@@ -48,4 +51,7 @@ function initialize!(system::System)
 
     # Save off the total number of DoFs distributed
     system.n_dofs = current_dof-1
+
+    # Set a flag that this System is initialized
+    system.initialized = true
 end
