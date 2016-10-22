@@ -11,3 +11,7 @@ end
 function solve!(solver::Solver)
     throw(MethodError(solve!, solver))
 end
+
+" Assemble the FE problem "
+function assemble!(solver::Solver)
+end

@@ -35,3 +35,18 @@ type Variable
                                             0,
                                             0)
 end
+
+" Recompute all of the data inside of a Variable for a given element "
+function reinit!(var::Variable, fe_values::FECellValues, nodal_values::Array{Float64})
+    var.phi = fe_values.N
+    var.grad_phi = fe_values.dNdx
+    var.JxW = fe_values.detJdV
+
+    n_qp = length(fe_values.detJdV)
+
+    var.value = [function_value(fe_values, qp, nodal_values) for qp in 1:n_qp]
+    var.grad = [function_gradient(fe_values, qp, nodal_values) for qp in 1:n_qp]
+
+    var.n_dofs = length(nodal_values)
+    var.n_qp = n_qp
+end

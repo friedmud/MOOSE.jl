@@ -8,6 +8,9 @@ type System
     " All of the Variables belonging to this System "
     variables::Array{Variable}
 
+    " All of the Kernels belonging to this System "
+    kernels::Array{Kernel}
+
     " The total number of degrees of freedom "
     n_dofs::Int64
 
@@ -18,7 +21,12 @@ type System
     q_rule::QuadratureRule
 
     " A Mesh must be provided "
-    System(mesh::Mesh) = new(mesh, Array{Variable}(0), 0, false, QuadratureRule{2,RefCube}(:legendre, 2))
+    System(mesh::Mesh) = new(mesh,
+                             Array{Variable}(0),
+                             Array{Kernel}(0),
+                             0,
+                             false,
+                             QuadratureRule{2,RefCube}(:legendre, 2))
 end
 
 " Add a Variable named name to the System "
@@ -31,6 +39,13 @@ function addVariable!(system::System, name::String)
 
     return var
 end
+
+
+" Add a Kernel to the System "
+function addKernel!(system::System, kernel::Kernel)
+    push!(system.kernels, kernel)
+end
+
 
 """
     Should be called after all Variables have been added to the System and before
@@ -54,4 +69,12 @@ function initialize!(system::System)
 
     # Set a flag that this System is initialized
     system.initialized = true
+end
+
+
+"""
+    Reinitialize all of the data and objects in the system for the current Element
+"""
+function reinit!(system::System, elem::Element)
+
 end

@@ -17,17 +17,9 @@
 
     reinit!(fe_values, coords)
 
-    nodal_values = [0, 1, 1, 0]
+    nodal_values = [0., 1., 1., 0.]
 
-    var.phi = fe_values.N
-    var.grad_phi = fe_values.dNdx
-    var.JxW = fe_values.detJdV
-
-    var.value = [function_value(fe_values, qp, nodal_values) for qp in 1:n_qp]
-    var.grad = [function_gradient(fe_values, qp, nodal_values) for qp in 1:n_qp]
-
-    var.n_dofs = length(nodal_values)
-    var.n_qp = n_qp
+    MOOSE.reinit!(var, fe_values, nodal_values)
 
     residual = zeros(Float64, var.n_dofs)
 

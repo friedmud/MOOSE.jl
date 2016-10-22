@@ -21,10 +21,10 @@ include("mesh/BoundaryInfo.jl")
 include("mesh/Mesh.jl")
 include("mesh/Generation.jl")
 include("systems/Variable.jl")
+include("kernels/Kernel.jl")
 include("systems/System.jl")
 include("solvers/Solver.jl")
 include("solvers/JuliaDenseImplicitSolver.jl")
-include("kernels/Kernel.jl")
 include("kernels/Diffusion.jl")
 
 end
