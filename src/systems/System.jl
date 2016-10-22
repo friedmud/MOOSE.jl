@@ -1,6 +1,3 @@
-include("Variable.jl")
-include("../mesh/Mesh.jl")
-
 """
     A System is a set of variables and equations to be solved simultaneously.
 """

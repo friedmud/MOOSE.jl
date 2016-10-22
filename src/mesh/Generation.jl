@@ -1,5 +1,3 @@
-include("Mesh.jl")
-
 "Create a 2D square using Quad4 elements."
 function buildSquare(xmin::Real, xmax::Real, ymin::Real, ymax::Real, n_elems_x::Integer, n_elems_y::Integer)
     # Create the Mesh

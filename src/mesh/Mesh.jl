@@ -1,7 +1,3 @@
-include("Node.jl")
-include("Element.jl")
-include("BoundaryInfo.jl")
-
 type Mesh
     nodes::Array{Node}
     elements::Array{Element}

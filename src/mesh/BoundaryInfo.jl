@@ -1,6 +1,3 @@
-include("Node.jl")
-include("Element.jl")
-
 type ElemSidePair
     element::Element
     side::Int64

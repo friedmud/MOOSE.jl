@@ -14,8 +14,13 @@ export Solver, solve!, JuliaDenseImplicitSolver
 
 export Kernel, computeResidual!, computeJacobian!, computeResidualAndJacobian!, Diffusion
 
+include("mesh/DofObject.jl")
+include("mesh/Node.jl")
+include("mesh/Element.jl")
+include("mesh/BoundaryInfo.jl")
 include("mesh/Mesh.jl")
 include("mesh/Generation.jl")
+include("systems/Variable.jl")
 include("systems/System.jl")
 include("solvers/Solver.jl")
 include("solvers/JuliaDenseImplicitSolver.jl")

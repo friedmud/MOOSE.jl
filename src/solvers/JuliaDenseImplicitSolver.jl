@@ -1,6 +1,3 @@
-include("Solver.jl")
-include("../systems/System.jl")
-
 " Linear solver that uses the built-in linear algebra capabilities "
 type JuliaDenseImplicitSolver <: Solver
     " The System the solve will be done for "
@@ -22,7 +19,7 @@ type JuliaDenseImplicitSolver <: Solver
 end
 
 " Initializes the matrix and rhs to the correct size "
-function initialize!(solver::Solver)
+function initialize!(solver::JuliaDenseImplicitSolver)
     @assert solver.system.initialized
 
     n_dofs = solver.system.n_dofs
@@ -35,7 +32,7 @@ function initialize!(solver::Solver)
 end
 
 " Solve using the built-in dense matrix/vector types "
-function solve!(solver::Solver)
+function solve!(solver::JuliaDenseImplicitSolver)
     @assert solver.initialized
 
     # Direct solve

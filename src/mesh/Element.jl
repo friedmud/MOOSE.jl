@@ -1,6 +1,3 @@
-include("DofObject.jl")
-include("Node.jl")
-
 """
   An element is a physical (geometrical) element in space
 """

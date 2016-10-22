@@ -1,5 +1,3 @@
-include("DofObject.jl")
-
 "Represents a point in physical space"
 type Node <: DofObject
     "A unique ID for the Node"

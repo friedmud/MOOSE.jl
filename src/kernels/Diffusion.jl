@@ -1,6 +1,3 @@
-include("Kernel.jl")
-include("../systems/Variable.jl")
-
 " Implements a Diffusion (Laplacian) operator "
 type Diffusion <: Kernel
     u::Variable
