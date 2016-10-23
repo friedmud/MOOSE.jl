@@ -3,7 +3,7 @@ using MOOSE
 include("CoupledConvection.jl")
 
 # Create the Mesh
-mesh = buildSquare(0, 1, 0, 1, 2, 2)
+mesh = buildSquare(0, 1, 0, 1, 20, 20)
 
 # Create the System to hold the equations
 diffusion_system = System(mesh)

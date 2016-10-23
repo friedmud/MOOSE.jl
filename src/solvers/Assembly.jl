@@ -16,11 +16,17 @@ function assembleResidualAndJacobian(solver::Solver)
 
     # Each inner array is of length n_dofs for each var
     var_residuals = Array{Array{Float64}}(n_vars)
-    fill!(var_residuals, Array{Float64}(0))
+    for i in 1:n_vars
+        var_residuals[i] = Array{Float64}(0)
+    end
 
     # Each inner matrix is i_n_dofs * j_n_dofs
     var_jacobians = Matrix{Matrix{Float64}}((n_vars, n_vars))
-    fill!(var_jacobians, Matrix{Float64}((0,0)))
+    for i in 1:n_vars
+        for j in 1:n_vars
+            var_jacobians[i,j] = Matrix{Float64}((0,0))
+        end
+    end
 
     # Execute the element loop and accumulate Kernel contributions
     for elem in mesh.elements
@@ -55,8 +61,6 @@ function assembleResidualAndJacobian(solver::Solver)
             end
         end
     end
-
-    display(solver.mat)
 
     # Now apply BCs
 
@@ -102,7 +106,4 @@ function assembleResidualAndJacobian(solver::Solver)
             end
         end
     end
-
-
-#    display(solver.rhs)
 end
