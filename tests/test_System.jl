@@ -19,18 +19,18 @@
     @test sys.n_dofs == length(mesh.nodes) * length(sys.variables)
 
     @test mesh.nodes[1].dofs == [1,2]
-    @test mesh.nodes[3].dofs == [5,6]
+    @test mesh.nodes[3].dofs == [9,10]
 
     # Test getting the dof indices
     dog_dofs = MOOSE.connectedDofIndices(mesh.elements[1], dog)
-    @test dog_dofs == [1, 7, 9, 3]
+    @test dog_dofs == [1, 3, 5, 7]
     cat_dofs = MOOSE.connectedDofIndices(mesh.elements[1], cat)
-    @test cat_dofs == [2, 8, 10, 4]
+    @test cat_dofs == [2, 4, 6, 8]
 
     dog_dofs = MOOSE.connectedDofIndices(mesh.elements[4], dog)
-    @test dog_dofs == [9, 15, 17, 11]
+    @test dog_dofs == [5, 11, 17, 13]
     cat_dofs = MOOSE.connectedDofIndices(mesh.elements[4], cat)
-    @test cat_dofs == [10, 16, 18, 12]
+    @test cat_dofs == [6, 12, 18, 14]
 
     # Test reinit
     MOOSE.reinit!(sys, mesh.elements[1], ones(18))

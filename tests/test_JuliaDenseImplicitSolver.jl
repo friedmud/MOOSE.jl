@@ -67,6 +67,6 @@ end
     solve!(solver)
 
     for i in 1:length(solver.solution)
-        @test abs(solver.solution[i] - [0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0][i]) < 1e-9
+        @test abs(solver.solution[i] - [0.0, 0.5, 0.5, 0.0, 1.0, 1.0, 0.5, 0.0, 1.0][i]) < 1e-9
     end
 end
