@@ -10,20 +10,16 @@ diffusion_system = System(mesh)
 u = addVariable!(diffusion_system, "u")
 
 # Apply the Laplacian operator to the variable
-diffusion_kernel = Diffusion(u)
-addKernel!(diffusion_system, diffusion_kernel)
+addKernel!(diffusion_system, Diffusion(u))
 
 # Add in a Convection operator with a velocity vector
-convection_kernel = Convection(u, Vec{2}((10.,0.)))
-addKernel!(diffusion_system, convection_kernel)
+addKernel!(diffusion_system, Convection(u, Vec{2}((10.,0.))))
 
 # u = 0 on the Left
-left_boundary = DirichletBC(u, [4], 0.0)
-addBC!(diffusion_system, left_boundary)
+addBC!(diffusion_system, DirichletBC(u, [4], 0.0))
 
 # u = 1 on the Right
-right_boundary = DirichletBC(u, [2], 1.0)
-addBC!(diffusion_system, right_boundary)
+addBC!(diffusion_system, DirichletBC(u, [2], 1.0))
 
 # Initialize the system of equations
 initialize!(diffusion_system)
