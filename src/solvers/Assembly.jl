@@ -1,8 +1,12 @@
+import Base.convert
+
+# How to convert a Dual to a Float
+convert{N,T}(Float64, x::Dual{N,T}) = value(x)
+
 """
     Assemble Jacobian and Residual
 """
-function assembleResidualAndJacobian(solver::Solver)
-    sys = solver.system
+function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
     mesh = sys.mesh
 
     solution = solver.solution
@@ -15,9 +19,9 @@ function assembleResidualAndJacobian(solver::Solver)
     fill!(solver.mat, 0.)
 
     # Each inner array is of length n_dofs for each var
-    var_residuals = Array{Array{Float64}}(n_vars)
+    var_residuals = Array{Array{T}}(n_vars)
     for i in 1:n_vars
-        var_residuals[i] = Array{Float64}(0)
+        var_residuals[i] = Array{T}(0)
     end
 
     # Each inner matrix is i_n_dofs * j_n_dofs
@@ -74,7 +78,7 @@ function assembleResidualAndJacobian(solver::Solver)
     end
 
     # Reusable storage for calling residual and jacobian calculations on NodalBCs
-    temp_residual = Array{Float64}(1)
+    temp_residual = Array{T}(1)
     temp_jacobian = Array{Float64}(n_vars)
 
     # Now go over each nodeset and apply the BCs

@@ -6,7 +6,7 @@ end
 @testset "Solver" begin
     mesh = buildSquare(0,1,0,1,2,2)
 
-    sys = System(mesh)
+    sys = System{Float64}(mesh)
 
     dog = addVariable!(sys, "dog")
     cat = addVariable!(sys, "cat")

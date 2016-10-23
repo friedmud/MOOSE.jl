@@ -6,7 +6,7 @@ include("CoupledConvection.jl")
 mesh = buildSquare(0, 1, 0, 1, 20, 20)
 
 # Create the System to hold the equations
-diffusion_system = System(mesh)
+diffusion_system = System{Dual{8,Float64}(mesh)
 
 # Add some variables
 u = addVariable!(diffusion_system, "u")

@@ -37,7 +37,7 @@ function solve!(solver::JuliaDenseNonlinearImplicitSolver; nl_max_its=10, nl_rel
 
     # Newton loops
     for i in 1:nl_max_its
-        assembleResidualAndJacobian(solver)
+        assembleResidualAndJacobian(solver, solver.system)
 
         current_residual_norm = norm(solver.rhs)
 

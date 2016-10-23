@@ -27,7 +27,7 @@ end
 function computeQpJacobian!(jacobian::Matrix{Float64}, kernel::Kernel, v::Variable, qp::Int64, i::Int64, j::Int64)
 end
 
-function computeResidual!(residual::Vector{Float64}, kernel::Kernel)
+function computeResidual!(residual::Vector, kernel::Kernel)
     u = kernel.u
     n_dofs = kernel.u.n_dofs
     n_qp = kernel.u.n_qp
@@ -39,7 +39,7 @@ function computeResidual!(residual::Vector{Float64}, kernel::Kernel)
     end
 end
 
-function computeJacobian!(jacobian::Matrix{Float64}, kernel::Kernel, v::Variable)
+function computeJacobian!(jacobian::Matrix{Float64}, kernel::Kernel, v::Variable{Float64})
     u = kernel.u
     u_n_dofs = kernel.u.n_dofs
     n_qp = kernel.u.n_qp
@@ -56,19 +56,70 @@ function computeJacobian!(jacobian::Matrix{Float64}, kernel::Kernel, v::Variable
     end
 end
 
+" Helper function to take a `residual` computed using a Dual and pull the Jacobian out of it "
+function pullJacobianFromResidual!{N,T}(jacobian::Matrix{Float64}, residual::Vector{Dual{N,T}}, kernel::Kernel, v::Variable{Dual{N,T}})
+    u_n_dofs = kernel.u.n_dofs
+    v_n_dofs = v.n_dofs
+
+    # FIXME: Won't work if the number of dofs is different per variable
+    partial_offset = (v.id-1) * v_n_dofs;
+
+    for i in 1:u_n_dofs
+        for j in 1:v_n_dofs
+            jacobian[i,j] += partials(residual[i])[partial_offset + j]
+        end
+    end
+end
+
+"""
+    This computes a Jacobian using automatic differentiation.
+
+    However: to do this it must compute a Residual first!
+    This is sub-optimal because the residual gets thrown away!
+    Only do this in the case where you _only_ want to compute the Jacobian and have no need of the residual!
+
+    If you need both the residual and Jacobian then call `computeResidualAndJacobian!()`
+    That will cause the Residual to only be computed once and the Jacobian to be inferred from the result.
+"""
+function computeJacobian!{N,T}(jacobian::Matrix{Float64}, kernel::Kernel, v::Variable{Dual{N,T}})
+    residual = Vector{Dual{N,T}}(kernel.u.n_dofs)
+
+    computeResidual!(residual, kernel)
+
+    pullJacobianFromResidual!(jacobian, residual, kernel, v)
+end
+
 
 """
     Compute both simultaneously.
 
-    Overridden versions can be more efficient
+    Specialization for Float64: Will call `computeJacobian!()` explicitly
 """
 function computeResidualAndJacobian!(residual::Vector{Float64},
                                      var_jacobians::Matrix{Matrix{Float64}},
-                                     vars::Array{Variable},
+                                     vars::Array{Variable{Float64}},
                                      kernel::Kernel)
     computeResidual!(residual, kernel)
 
     for v in vars
         computeJacobian!(var_jacobians[kernel.u.id, v.id], kernel, v)
+    end
+end
+
+"""
+    Compute both simultaneously.
+
+    Specialization for Dual: Will use automatic differentiation to compute Jacobian
+"""
+function computeResidualAndJacobian!{N,T}(residual::Vector,
+                                     var_jacobians::Matrix{Matrix{Float64}},
+                                     vars::Array{Variable{Dual{N,T}}},
+                                     kernel::Kernel)
+    computeResidual!(residual, kernel)
+
+    for v in vars
+        jacobian = var_jacobians[kernel.u.id, v.id]
+
+        pullJacobianFromResidual!(jacobian, residual, kernel, v)
     end
 end

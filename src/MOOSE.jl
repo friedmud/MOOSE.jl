@@ -9,7 +9,7 @@ using WriteVTK
 using JuAFEM
 
 using ForwardDiff
-using ForwardDiff: Partials, Dual, value, partials, npartials, setindex
+using ForwardDiff: Partials, Dual, value, partials, npartials, setindex, convert
 
 export dofs
 
@@ -29,6 +29,9 @@ export output, VTKOutput
 
 # The default value type that will be used by MOOSE.jl
 value_type = Float64
+
+# Constructor for making a Dual with a particular value and index
+dualVariable{T}(value::T, index::Int64, num_partials::Int64) = Dual(value, Partials(ntuple(n -> n != index ? zero(Float64) : 1.0, num_partials)))
 
 include("mesh/DofObject.jl")
 include("mesh/Node.jl")

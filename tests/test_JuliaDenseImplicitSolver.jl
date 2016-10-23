@@ -1,7 +1,7 @@
 @testset "JDIS" begin
     mesh = buildSquare(0,1,0,1,2,2)
 
-    sys = System(mesh)
+    sys = System{Float64}(mesh)
 
     dog = addVariable!(sys, "dog")
     cat = addVariable!(sys, "cat")
@@ -43,12 +43,7 @@
     @test jdis.solution == -jdis.rhs
 end
 
-# Test a 'Full Solve' using JDIS
-@testset "JDISFS" begin
-    mesh = buildSquare(0, 1, 0, 1, 2, 2)
-
-    diffusion_system = System(mesh)
-
+function testFullSolve(diffusion_system)
     u = addVariable!(diffusion_system, "u")
 
     diffusion_kernel = Diffusion(u)
@@ -69,4 +64,22 @@ end
     for i in 1:length(solver.solution)
         @test abs(solver.solution[i] - [0.0, 0.5, 0.5, 0.0, 1.0, 1.0, 0.5, 0.0, 1.0][i]) < 1e-9
     end
+end
+
+# Test a 'Full Solve' using JDIS
+@testset "JDISFS" begin
+    mesh = buildSquare(0, 1, 0, 1, 2, 2)
+
+    diffusion_system = System{Float64}(mesh)
+
+    testFullSolve(diffusion_system)
+end
+
+# Test a 'Full Solve' using JDIS and Automatic Differentiation
+@testset "JDISFD" begin
+    mesh = buildSquare(0, 1, 0, 1, 2, 2)
+
+    diffusion_system = System{Dual{4, Float64}}(mesh)
+
+    testFullSolve(diffusion_system)
 end

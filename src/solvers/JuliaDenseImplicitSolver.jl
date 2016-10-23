@@ -29,7 +29,7 @@ function solve!(solver::JuliaDenseImplicitSolver; assemble=true)
     end
 
     if assemble
-        assembleResidualAndJacobian(solver)
+        assembleResidualAndJacobian(solver, solver.system)
     end
 
     # Direct solve

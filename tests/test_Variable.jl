@@ -59,9 +59,18 @@ end
 
     reinit!(fe_values, coords)
 
-    dof_values = [0., 1., 1., 0.]
+    dof_values = [MOOSE.dualVariable(0.,1,4),
+                  MOOSE.dualVariable(1.,2,4),
+                  MOOSE.dualVariable(1.,3,4),
+                  MOOSE.dualVariable(0.,4,4)]
 
     MOOSE.reinit!(var, fe_values, [1,2,3,4], dof_values)
+
+    @test partials(var.value[1])[1] == var.phi[1][1]
+    @test partials(var.grad[1][1])[1] == var.grad_phi[1][1][1]
+
+    @test partials(var.value[2])[1] == var.phi[1][2]
+    @test partials(var.grad[2][1])[1] == var.grad_phi[2][1][1]
 
     @test var.dofs == [1,2,3,4]
     @test var.n_dofs == 4
@@ -77,5 +86,4 @@ end
 
     @test var.nodal_dof == 3
     @test var.nodal_value == 2.7
-    print(var.nodal_value)
 end

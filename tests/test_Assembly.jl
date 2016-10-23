@@ -1,8 +1,4 @@
-@testset "Assembly" begin
-    mesh = buildSquare(0, 1, 0, 1, 2, 2)
-
-    diffusion_system = System(mesh)
-
+function testAssembly(diffusion_system::System)
     u = addVariable!(diffusion_system, "u")
 
     diffusion_kernel = Diffusion(u)
@@ -15,7 +11,7 @@
 
     initialize!(solver)
 
-    MOOSE.assembleResidualAndJacobian(solver)
+    MOOSE.assembleResidualAndJacobian(solver, diffusion_system)
 
     # From MOOSE
     jac = [0.666666666667 -0.166666666667 -0.333333333333 -0.166666666667 0 0 0 0 0 ;
@@ -31,4 +27,22 @@
     for i in 1:length(jac)
         @test abs(solver.mat[i] - jac[i]) < 1e-5
     end
+end
+
+
+@testset "Assembly" begin
+    mesh = buildSquare(0, 1, 0, 1, 2, 2)
+
+    diffusion_system = System{Float64}(mesh)
+
+    testAssembly(diffusion_system)
+end
+
+
+@testset "AssemblyFD" begin
+    mesh = buildSquare(0, 1, 0, 1, 2, 2)
+
+    diffusion_system = System{Dual{4, Float64}}(mesh)
+
+    testAssembly(diffusion_system)
 end

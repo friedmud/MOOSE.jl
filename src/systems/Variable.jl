@@ -1,4 +1,4 @@
-type Variable{T<:Real}
+type Variable{T}
     " Unique Identifier for the variable "
     id::Int64
 
@@ -49,7 +49,7 @@ type Variable{T<:Real}
 end
 
 " Recompute all of the data inside of a Variable for a given element "
-function reinit!(var::Variable, fe_values::FECellValues, dof_indices::Array{Int64}, dof_values::Array{Float64})
+function reinit!{T}(var::Variable, fe_values::FECellValues, dof_indices::Array{Int64}, dof_values::Array{T})
     var.phi = fe_values.N
     var.grad_phi = fe_values.dNdx
     var.JxW = fe_values.detJdV
@@ -65,7 +65,7 @@ function reinit!(var::Variable, fe_values::FECellValues, dof_indices::Array{Int6
 end
 
 " Recompute all of the data inside of a Variable for a given Node "
-function reinit!(var::Variable, dof_index::Int64, dof_value::Float64)
+function reinit!{T}(var::Variable, dof_index::Int64, dof_value::T)
     var.nodal_dof = dof_index
     var.nodal_value = dof_value
 end

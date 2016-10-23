@@ -1,12 +1,22 @@
 """
     A System is a set of variables and equations to be solved simultaneously.
+
+    The parameterization is for the type used for Variable values.
+    This controls whether or not automatic diffentiation is used.
+
+    If T = Float64: Then Variable values are just POD.
+                    In this case `computeQpJacobian` statements will be used to form the Jacobian
+
+    If T = Dual{X, Float64}: Then Variable values are automatically differentiated types
+                             In this case the Jacobians of Residuals will be automatically
+                             computed using the partials of the Dual numbers
 """
-type System
+type System{T}
     " The Mesh this System will use "
     mesh::Mesh
 
     " All of the Variables belonging to this System "
-    variables::Array{Variable}
+    variables::Array{Variable{T}}
 
     " All of the Kernels belonging to this System "
     kernels::Array{Kernel}
@@ -43,10 +53,10 @@ type System
 end
 
 " Add a Variable named name to the System "
-function addVariable!(sys::System, name::String)
+function addVariable!{T}(sys::System{T}, name::String)
     n_vars = length(sys.variables)
 
-    var = Variable(n_vars+1, name)
+    var = Variable{T}(n_vars+1, name)
 
     push!(sys.variables, var)
 
@@ -109,9 +119,43 @@ function connectedDofIndices(elem::Element, var::Variable)
 end
 
 """
+    Create the vector of dof_values from the dof_indices and solution vector
+
+    Specialization for Float64
+"""
+function dofValues!(dof_values::Array, sys::System{Float64}, solution::Array, var::Variable, dof_indices::Array)
+    resize!(dof_values, length(dof_indices))
+    dof_values[:] = solution[dof_indices]
+end
+
+"""
+    Create the vector of dof_values from the dof_indices and solution vector
+
+    Specialization for Dual
+"""
+function dofValues!{N,T}(dof_values::Array, sys::System{Dual{N,T}}, solution::Array, var::Variable, dof_indices::Array)
+    resize!(dof_values, length(dof_indices))
+
+    values = solution[dof_indices]
+
+    n_vars = length(sys.variables)
+    n_dofs_per_var = length(dof_indices)
+    total_n_dofs = n_vars * n_dofs_per_var
+
+    @assert total_n_dofs <= N
+
+    partial_offset = ((var.id - 1) * n_dofs_per_var)
+
+    for i in 1:n_dofs_per_var
+        dof_values[i] = dualVariable(values[i], partial_offset + i, N)
+    end
+end
+
+
+"""
     Reinitialize all of the data and objects in the system for the current Element
 """
-function reinit!(sys::System, elem::Element, solution::Array)
+function reinit!{T}(sys::System{T}, elem::Element, solution::Array)
     # Grab all of the coordinattes for the current element
     coords = [node.coords for node in elem.nodes]
 
@@ -124,23 +168,32 @@ function reinit!(sys::System, elem::Element, solution::Array)
         dof_indices = connectedDofIndices(elem, var)
 
         # Now pull out those pieces of the solution vector
-        dof_values = solution[dof_indices]
+        dof_values = Array{T}(0)
+        dofValues!(dof_values, sys, solution, var, dof_indices)
 
         # Recompute the Variable values
         reinit!(var, sys.fe_values, dof_indices, dof_values)
     end
 end
 
+" Helper function for getting a Float64 dof_value at a Node "
+function dofValue(solution::Array, var::Variable{Float64}, dof_index::Int64)
+    return solution[dof_index]
+end
 
+" Helper function for getting a Dual dof_value at a Node "
+function dofValue{N,T}(solution::Array, var::Variable{Dual{N,T}}, dof_index::Int64)
+    return dualVariable(solution[dof_index], var.id, N)
+end
 
 """
     Reinitialize all of the data and objects in the system for the current Node
 """
-function reinit!(sys::System, node::Node, solution::Array)
+function reinit!{T}(sys::System{T}, node::Node, solution::Array)
     # Reinitialize the variable values
     for var in sys.variables
         dof_index = node.dofs[var.id]
-        dof_value = solution[dof_index]
+        dof_value = dofValue(solution, var, dof_index)
 
         # Recompute the Variable values
         reinit!(var, dof_index, dof_value)
