@@ -22,4 +22,6 @@ function computeJacobian(bc::DirichletBC, v::Variable)
     if u.id == v.id
         return 1.
     end
+
+    return 0.
 end

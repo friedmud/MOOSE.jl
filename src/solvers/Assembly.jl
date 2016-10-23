@@ -100,4 +100,8 @@ function assembleResidualAndJacobian(solver::Solver)
             end
         end
     end
+
+#    display(solver.mat)
+
+#    display(solver.rhs)
 end
