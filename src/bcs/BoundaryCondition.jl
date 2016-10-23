@@ -17,3 +17,14 @@ abstract IntegratedBC <: BoundaryCondition
 function boundaryIDs(bc::BoundaryCondition)
     return bc.bids
 end
+
+function computeResidualAndJacobian!(residual::Array{Float64},
+                                     var_jacobians::Array{Float64},
+                                     vars::Array{Variable},
+                                     bc::BoundaryCondition)
+    residual[1] = computeResidual(bc)
+
+    for v in vars
+        var_jacobians[v.id] = computeJacobian(bc, v)
+    end
+end

@@ -10,18 +10,16 @@ type DirichletBC <: NodalBC
     value::Float64
 end
 
-function computeResidual!(residual::Vector{Float64}, bc::DirichletBC)
+function computeResidual(bc::DirichletBC)
     u = bc.u
 
-    residual[1] = u.nodal_value - bc.value
+    return u.nodal_value - bc.value
 end
 
-function computeJacobian!(jacobian::Matrix{Float64}, bc::DirichletBC, v::Variable)
+function computeJacobian(bc::DirichletBC, v::Variable)
     u = bc.u
 
-    # There is only one degree of freedom here, and the shape function is of value 1
-    # at the node.
-    if v.id == u.id
-        jacobian[1,1] = 1.
+    if u.id == v.id
+        return 1.
     end
 end

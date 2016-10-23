@@ -7,7 +7,8 @@ function assembleResidualAndJacobian(solver::Solver)
 
     solution = solver.solution
 
-    n_vars = length(sys.variables)
+    vars = sys.variables
+    n_vars = length(vars)
 
     # Reset the Residual and Jacobian
     fill!(solver.rhs, 0.)
@@ -18,7 +19,7 @@ function assembleResidualAndJacobian(solver::Solver)
     fill!(var_residuals, Array{Float64}(0))
 
     # Each inner matrix is i_n_dofs * j_n_dofs
-    var_jacobians = Array{Matrix{Float64}}(n_vars)
+    var_jacobians = Matrix{Matrix{Float64}}((n_vars, n_vars))
     fill!(var_jacobians, Matrix{Float64}((0,0)))
 
     # Execute the element loop and accumulate Kernel contributions
@@ -42,7 +43,7 @@ function assembleResidualAndJacobian(solver::Solver)
 
         # Get the Residual/Jacobian contributions from each Kernel
         for kernel in sys.kernels
-            computeResidualAndJacobian!(var_residuals[kernel.u.id], var_jacobians[kernel.u.id], kernel)
+            computeResidualAndJacobian!(var_residuals[kernel.u.id], var_jacobians, vars, kernel)
         end
 
         # Scatter those entries back out into the Residual and Jacobian
@@ -68,7 +69,7 @@ function assembleResidualAndJacobian(solver::Solver)
 
     # Reusable storage for calling residual and jacobian calculations on NodalBCs
     temp_residual = Array{Float64}(1)
-    temp_jacobian = Matrix{Float64}((1,1))
+    temp_jacobian = Array{Float64}(n_vars)
 
     # Now go over each nodeset and apply the BCs
     for bid in bids
@@ -83,7 +84,7 @@ function assembleResidualAndJacobian(solver::Solver)
             # Apply all of the BCs that should be applied here
             for bc in bcs
                 if bid in bc.bids
-                    computeResidualAndJacobian!(temp_residual, temp_jacobian, bc)
+                    computeResidualAndJacobian!(temp_residual, temp_jacobian, vars, bc)
 
                     # First set the residual
                     solver.rhs[bc.u.nodal_dof] = temp_residual[1]
@@ -92,7 +93,9 @@ function assembleResidualAndJacobian(solver::Solver)
                     solver.mat[bc.u.nodal_dof,:] = 0
 
                     # And put this piece in place
-                    solver.mat[bc.u.nodal_dof,bc.u.nodal_dof] = temp_jacobian[1,1]
+                    for v in vars
+                        solver.mat[bc.u.nodal_dof,v.nodal_dof] = temp_jacobian[v.id]
+                    end
                 end
             end
         end

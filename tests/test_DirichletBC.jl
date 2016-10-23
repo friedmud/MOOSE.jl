@@ -14,13 +14,11 @@
     MOOSE.reinit!(var, 2, 2.2)
 
     # Test out the residual and Jacobian calculations
-    res = [0.]
-    MOOSE.computeResidual!(res, dbc)
+    res = MOOSE.computeResidual(dbc)
 
-    @test abs(res[1] - (2.2 - 3.7)) < 1e-9
+    @test abs(res - (2.2 - 3.7)) < 1e-9
 
-    jac = Matrix{Float64}((1,1))
-    MOOSE.computeJacobian!(jac, dbc, var)
+    jac = MOOSE.computeJacobian(dbc, dbc.u)
 
-    @test jac[1,1] == 1.
+    @test jac == 1.
 end

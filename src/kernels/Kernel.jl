@@ -62,7 +62,13 @@ end
 
     Overridden versions can be more efficient
 """
-function computeResidualAndJacobian!(residual::Vector{Float64}, jacobian::Matrix{Float64}, kernel::Kernel)
+function computeResidualAndJacobian!(residual::Vector{Float64},
+                                     var_jacobians::Matrix{Matrix{Float64}},
+                                     vars::Array{Variable},
+                                     kernel::Kernel)
     computeResidual!(residual, kernel)
-    computeJacobian!(jacobian, kernel, kernel.u)
+
+    for v in vars
+        computeJacobian!(var_jacobians[kernel.u.id, v.id], kernel, v)
+    end
 end
