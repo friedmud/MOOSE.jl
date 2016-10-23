@@ -10,6 +10,7 @@ using JuAFEM
 
 using ForwardDiff
 using ForwardDiff: Partials, Dual, value, partials, npartials, setindex, convert
+export Dual
 
 export dofs
 

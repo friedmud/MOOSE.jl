@@ -115,11 +115,17 @@ function computeResidualAndJacobian!{N,T}(residual::Vector,
                                      var_jacobians::Matrix{Matrix{Float64}},
                                      vars::Array{Variable{Dual{N,T}}},
                                      kernel::Kernel)
-    computeResidual!(residual, kernel)
+    this_residual = Vector{Dual{N,T}}(kernel.u.n_dofs)
+    for val in this_residual
+        val = 0
+    end
+
+    computeResidual!(this_residual, kernel)
+
+    residual[:] += this_residual
 
     for v in vars
         jacobian = var_jacobians[kernel.u.id, v.id]
-
-        pullJacobianFromResidual!(jacobian, residual, kernel, v)
+        pullJacobianFromResidual!(jacobian, this_residual, kernel, v)
     end
 end

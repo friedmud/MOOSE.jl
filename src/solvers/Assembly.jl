@@ -66,6 +66,7 @@ function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
         end
     end
 
+
     # Now apply BCs
 
     boundary_info = mesh.boundary_info

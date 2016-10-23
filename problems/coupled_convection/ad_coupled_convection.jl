@@ -1,12 +1,18 @@
 using MOOSE
 
-include("CoupledConvection.jl")
+include("ADCoupledConvection.jl")
 
 # Create the Mesh
 mesh = buildSquare(0, 1, 0, 1, 2, 2)
 
 # Create the System to hold the equations
-diffusion_system = System{Float64}(mesh)
+# By using Dual here the Jacobian will be computed
+# using automatic differentiation.
+# The "8" is for the maximum number of DoFs on
+# any one element.
+# Since we're using Lagrange with Quads with Two
+# variables... that's how we get to 8
+diffusion_system = System{Dual{8,Float64}}(mesh)
 
 # Add some variables
 u = addVariable!(diffusion_system, "u")
@@ -16,7 +22,7 @@ v = addVariable!(diffusion_system, "v")
 addKernel!(diffusion_system, Diffusion(u))
 
 # Apply the Coupled Convection operator
-addKernel!(diffusion_system, CoupledConvection(u, v))
+addKernel!(diffusion_system, ADCoupledConvection(u, v))
 
 # Apply the Laplacian operator to the "v" variable
 addKernel!(diffusion_system, Diffusion(v))
@@ -45,4 +51,4 @@ solve!(solver, nl_max_its=5)
 
 # Output
 out = VTKOutput()
-output(out, solver, "coupled_convection_out")
+output(out, solver, "ad_coupled_convection_out")
