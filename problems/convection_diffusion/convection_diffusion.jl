@@ -1,7 +1,7 @@
-importall MOOSE
+using MOOSE
 
 # Create the Mesh
-mesh = buildSquare(0, 1, 0, 1, 10, 10)
+mesh = buildSquare(0, 1, 0, 1, 20, 20)
 
 # Create the System to hold the equations
 diffusion_system = System(mesh)
@@ -12,6 +12,10 @@ u = addVariable!(diffusion_system, "u")
 # Apply the Laplacian operator to the variable
 diffusion_kernel = Diffusion(u)
 addKernel!(diffusion_system, diffusion_kernel)
+
+# Add in a Convection operator with a velocity vector
+convection_kernel = Convection(u, Vec{2}((10.,0.)))
+addKernel!(diffusion_system, convection_kernel)
 
 # u = 0 on the Left
 left_boundary = DirichletBC(u, [4], 0.0)
@@ -25,7 +29,7 @@ addBC!(diffusion_system, right_boundary)
 initialize!(diffusion_system)
 
 # Create a solver and solve
-solver = JuliaDenseNonlinearImplicitSolver(diffusion_system)
+solver = JuliaDenseImplicitSolver(diffusion_system)
 solve!(solver)
 
 # Output

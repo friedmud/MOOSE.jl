@@ -1,7 +1,12 @@
+__precompile__()
+
 module MOOSE
 
-using JuAFEM
+using Reexport
+
+@reexport using ContMechTensors
 using WriteVTK
+using JuAFEM
 
 export dofs
 
@@ -13,7 +18,7 @@ export Variable, System, addVariable!, addKernel!, addBC!, initialize!
 
 export Solver, solve!, JuliaDenseImplicitSolver, JuliaDenseNonlinearImplicitSolver
 
-export Kernel, Diffusion
+export Kernel, Diffusion, Convection
 
 export boundaryIDs, DirichletBC
 
@@ -37,6 +42,7 @@ include("solvers/JuliaDenseImplicitSolver.jl")
 include("solvers/JuliaDenseNonlinearImplicitSolver.jl")
 
 include("kernels/Diffusion.jl")
+include("kernels/Convection.jl")
 
 include("bcs/DirichletBC.jl")
 
