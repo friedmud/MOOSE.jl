@@ -8,6 +8,9 @@ using Reexport
 using WriteVTK
 using JuAFEM
 
+using ForwardDiff
+using ForwardDiff: Partials, Dual, value, partials, npartials, setindex
+
 export dofs
 
 export Node, Element, Mesh
@@ -23,6 +26,9 @@ export Kernel, Diffusion, Convection
 export boundaryIDs, DirichletBC
 
 export output, VTKOutput
+
+# The default value type that will be used by MOOSE.jl
+value_type = Float64
 
 include("mesh/DofObject.jl")
 include("mesh/Node.jl")

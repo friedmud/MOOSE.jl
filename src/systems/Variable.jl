@@ -1,4 +1,4 @@
-type Variable
+type Variable{T<:Real}
     " Unique Identifier for the variable "
     id::Int64
 
@@ -6,10 +6,10 @@ type Variable
     name::String
 
     " Current values for this variable indexed by [qp] "
-    value::Array{Float64,1}
+    value::Array{T,1}
 
     " Current gradients for this variable indexed by [qp] "
-    grad::Array{Vec{2,Float64},1}
+    grad::Array{Vec{2,T},1}
 
     " Current shape functions for this variable indexed by [qp][i] "
     phi::Array{Array{Float64,1}}
@@ -30,21 +30,21 @@ type Variable
     n_qp::Int64
 
     " The value at a node (for use in NodalBCs) "
-    nodal_value::Float64
+    nodal_value::T
 
     " The dof at a node (for use with NodalBCs) "
     nodal_dof::Int64
 
     Variable(id::Int64, name::String) = new(id, name,
-                                            Array{Float64}(0),
-                                            Array{Vec{2,Float64}}(0),
+                                            Array{T}(0),
+                                            Array{Vec{2,T}}(0),
                                             Array{Array{Float64}}(0),
                                             Array{Array{Vec{2,Float64}},1}(0),
                                             Array{Float64,1}(0),
                                             Array{Int64}(0),
                                             0,
                                             0,
-                                            0.,
+                                            zero(T),
                                             0)
 end
 
