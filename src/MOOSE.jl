@@ -11,7 +11,7 @@ export buildSquare
 
 export Variable, System, addVariable!, addKernel!, addBC!, initialize!
 
-export Solver, solve!, JuliaDenseImplicitSolver
+export Solver, solve!, JuliaDenseImplicitSolver, JuliaDenseNonlinearImplicitSolver
 
 export Kernel, computeResidual!, computeJacobian!, computeResidualAndJacobian!, Diffusion
 
@@ -30,9 +30,11 @@ include("kernels/Kernel.jl")
 include("bcs/BoundaryCondition.jl")
 include("systems/System.jl")
 include("solvers/Solver.jl")
-include("solvers/JuliaDenseImplicitSolver.jl")
 include("solvers/Assembly.jl")
 include("outputs/Output.jl")
+
+include("solvers/JuliaDenseImplicitSolver.jl")
+include("solvers/JuliaDenseNonlinearImplicitSolver.jl")
 
 include("kernels/Diffusion.jl")
 
