@@ -21,11 +21,11 @@ end
 """
     Solve using the built-in dense matrix/vector types
 
-    `max_nl_its`: Maximum number of nonlinear iterations to attempt before giving up
+    `nl_max_its`: Maximum number of nonlinear iterations to attempt before giving up
     `nl_rel_tol`: Relative nonlinear residual L2-Norm drop tolerance
     `nl_abs_tol`: Absolute nonlinear residual L2-Norm tolerance
 """
-function solve!(solver::JuliaDenseNonlinearImplicitSolver; max_nl_its=10, nl_rel_tol=1e-8, nl_abs_tol=1e-20)
+function solve!(solver::JuliaDenseNonlinearImplicitSolver; nl_max_its=10, nl_rel_tol=1e-8, nl_abs_tol=1e-20)
     if !solver.initialized
         initialize!(solver)
     end
@@ -36,7 +36,7 @@ function solve!(solver::JuliaDenseNonlinearImplicitSolver; max_nl_its=10, nl_rel
     delta = similar(solver.solution)
 
     # Newton loops
-    for i in 1:max_nl_its
+    for i in 1:nl_max_its
         assembleResidualAndJacobian(solver)
 
         current_residual_norm = norm(solver.rhs)

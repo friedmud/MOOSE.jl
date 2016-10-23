@@ -9,6 +9,10 @@ function assembleResidualAndJacobian(solver::Solver)
 
     n_vars = length(sys.variables)
 
+    # Reset the Residual and Jacobian
+    fill!(solver.rhs, 0.)
+    fill!(solver.mat, 0.)
+
     # Each inner array is of length n_dofs for each var
     var_residuals = Array{Array{Float64}}(n_vars)
     fill!(var_residuals, Array{Float64}(0))
