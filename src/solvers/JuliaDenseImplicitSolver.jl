@@ -31,9 +31,19 @@ function initialize!(solver::JuliaDenseImplicitSolver)
     solver.initialized = true
 end
 
-" Solve using the built-in dense matrix/vector types "
-function solve!(solver::JuliaDenseImplicitSolver)
-    @assert solver.initialized
+"""
+    Solve using the built-in dense matrix/vector types
+
+    `assemble` controls whether or not the system will be assembled automatically
+"""
+function solve!(solver::JuliaDenseImplicitSolver; assemble=true)
+    if !solver.initialized
+        initialize!(solver)
+    end
+
+    if assemble
+        assembleResidualAndJacobian(solver)
+    end
 
     # Direct solve
     solver.solution = \(solver.mat, -solver.rhs)

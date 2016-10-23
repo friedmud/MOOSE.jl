@@ -37,7 +37,7 @@
     end
 
     # Now solve:
-    solve!(jdis)
+    solve!(jdis, assemble=false)
 
     # Should be the case!
     @test jdis.solution == -jdis.rhs
@@ -63,12 +63,6 @@ end
     initialize!(diffusion_system)
 
     solver = JuliaDenseImplicitSolver(diffusion_system)
-
-    initialize!(solver)
-
-    MOOSE.reinit!(diffusion_system, mesh.elements[1], solver.solution)
-
-    MOOSE.assembleResidualAndJacobian(solver)
 
     solve!(solver)
 

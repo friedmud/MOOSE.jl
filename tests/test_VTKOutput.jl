@@ -18,12 +18,6 @@
 
     solver = JuliaDenseImplicitSolver(diffusion_system)
 
-    initialize!(solver)
-
-    MOOSE.reinit!(diffusion_system, mesh.elements[1], solver.solution)
-
-    MOOSE.assembleResidualAndJacobian(solver)
-
     solve!(solver)
 
     out = VTKOutput()
