@@ -24,7 +24,7 @@
     residual = zeros(Float64, var.n_dofs)
 
     # Test the Kernel Interface
-    computeResidual!(residual, diffusion)
+    MOOSE.computeResidual!(residual, diffusion)
 
     # Verified by running the same problem in MOOSE
     moose_residual = [-0.5, 0.5, 0.5, -0.5]
@@ -35,7 +35,7 @@
 
     jacobian = zeros(Float64, var.n_dofs, var.n_dofs)
 
-    computeJacobian!(jacobian, diffusion, var)
+    MOOSE.computeJacobian!(jacobian, diffusion, var)
 
 
     moose_jac = [0.666666666667 -0.166666666667 -0.333333333333 -0.166666666667;

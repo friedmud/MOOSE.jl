@@ -7,5 +7,5 @@ end
     dummy_kernel = DummyKernel()
 
     # Test the Kernel Interface
-    @test_throws MethodError computeResidual!(residual, dummy_kernel)
+    @test_throws MethodError MOOSE.computeQpResidual(dummy_kernel, 1, 1)
 end

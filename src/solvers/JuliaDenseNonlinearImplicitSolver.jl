@@ -59,6 +59,8 @@ function solve!(solver::JuliaDenseNonlinearImplicitSolver; max_nl_its=10, nl_rel
         end
 
         print("  Starting Solve... ")
+        flush(STDOUT)
+
         # Direct solve
         delta = \(solver.mat, -solver.rhs)
         println("Done.")

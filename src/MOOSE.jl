@@ -13,7 +13,7 @@ export Variable, System, addVariable!, addKernel!, addBC!, initialize!
 
 export Solver, solve!, JuliaDenseImplicitSolver, JuliaDenseNonlinearImplicitSolver
 
-export Kernel, computeResidual!, computeJacobian!, computeResidualAndJacobian!, Diffusion
+export Kernel, Diffusion
 
 export boundaryIDs, DirichletBC
 
