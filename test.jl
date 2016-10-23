@@ -1,6 +1,6 @@
 importall MOOSE
 
-mesh = buildSquare(0, 1, 0, 1, 2, 2)
+mesh = buildSquare(0, 1, 0, 1, 10, 10)
 
 diffusion_system = System(mesh)
 
@@ -28,3 +28,7 @@ MOOSE.assembleResidualAndJacobian(solver)
 solve!(solver)
 
 println(solver.solution)
+
+out = VTKOutput()
+
+output(out, solver, "test_out")

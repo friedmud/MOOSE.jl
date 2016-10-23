@@ -1,6 +1,7 @@
 module MOOSE
 
 using JuAFEM
+using WriteVTK
 
 export dofs
 
@@ -16,6 +17,8 @@ export Kernel, computeResidual!, computeJacobian!, computeResidualAndJacobian!, 
 
 export boundaryIDs, DirichletBC
 
+export output, VTKOutput
+
 include("mesh/DofObject.jl")
 include("mesh/Node.jl")
 include("mesh/Element.jl")
@@ -29,9 +32,12 @@ include("systems/System.jl")
 include("solvers/Solver.jl")
 include("solvers/JuliaDenseImplicitSolver.jl")
 include("solvers/Assembly.jl")
+include("outputs/Output.jl")
 
 include("kernels/Diffusion.jl")
 
 include("bcs/DirichletBC.jl")
+
+include("outputs/VTKOutput.jl")
 
 end
