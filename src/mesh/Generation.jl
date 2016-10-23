@@ -27,15 +27,13 @@ function buildSquare(xmin::Real, xmax::Real, ymin::Real, ymax::Real, n_elems_x::
     y_increment = y_range / n_elems_y
 
     node_id = 1
-    for x_idx = 1:n_nodes_x
+    for y_idx = 1:n_nodes_y
+        # y position
+        y = ymin + ((y_idx-1) * y_increment)
 
-        # x position
-        x = xmin + ((x_idx-1) * x_increment)
-
-        for y_idx = 1:n_nodes_y
-
-            # y position
-            y = ymin + ((y_idx-1) * y_increment)
+        for x_idx = 1:n_nodes_x
+            # x position
+            x = xmin + ((x_idx-1) * x_increment)
 
             # Create the node
             node = Node{2}(node_id, Vec{2}((x,y)), [])
@@ -75,11 +73,10 @@ function buildSquare(xmin::Real, xmax::Real, ymin::Real, ymax::Real, n_elems_x::
     element_id = 1
 
     # Idea taken from libMesh mesh_generation.C
-    idx(x_idx, y_idx) = ( (y_idx-1) + (x_idx-1) * (n_nodes_y) ) + 1
+    idx(x_idx, y_idx) = ( (x_idx-1) + (y_idx-1) * (n_nodes_x) ) + 1
 
-    for x_idx = 1:n_elems_x
-        for y_idx = 1:n_elems_y
-
+    for y_idx = 1:n_elems_y
+        for x_idx = 1:n_elems_x
             # Create the Element
             element = Element(element_id,
                               [nodes[idx(x_idx, y_idx)],

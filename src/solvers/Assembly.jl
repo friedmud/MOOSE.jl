@@ -56,6 +56,8 @@ function assembleResidualAndJacobian(solver::Solver)
         end
     end
 
+    display(solver.mat)
+
     # Now apply BCs
 
     boundary_info = mesh.boundary_info
@@ -101,7 +103,6 @@ function assembleResidualAndJacobian(solver::Solver)
         end
     end
 
-#    display(solver.mat)
 
 #    display(solver.rhs)
 end

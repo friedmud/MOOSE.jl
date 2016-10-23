@@ -64,6 +64,29 @@ function addBC!(sys::System, bc::BoundaryCondition)
     push!(sys.bcs, bc)
 end
 
+" Distribute the DoFs to the DofObjects "
+function distributeDofs(sys::System)
+    # These will be "node major"
+    n_vars = length(sys.variables)
+
+    # Go over the elements and set the DoFs for the nodes (if they haven't already been set)
+    # We go over elements for a couple of reasons... but the main one for now is to match
+    # the way libMesh does it to make it easy to compare Jacobian/Residual matrices!
+
+    current_dof = 1
+
+    for elem in sys.mesh.elements
+        for node in elem.nodes
+            if length(node.dofs) == 0 # Only set DoFs if they haven't been set before
+                node.dofs = [x for x in current_dof:((n_vars+current_dof)-1)]
+                current_dof += n_vars
+            end
+        end
+    end
+
+    # Save off the total number of DoFs distributed
+    sys.n_dofs = current_dof-1
+end
 
 """
     Should be called after all Variables have been added to the System and before
@@ -72,18 +95,7 @@ end
     The main purpose of this function is to distribute the DoFs across the mesh.
 """
 function initialize!(sys::System)
-    # Go through each node in the mesh and set aside DoFs.
-    # These will be "node major"
-    n_vars = length(sys.variables)
-
-    current_dof = 1
-    for node in sys.mesh.nodes
-        node.dofs = [x for x in current_dof:((n_vars+current_dof)-1)]
-        current_dof += n_vars
-    end
-
-    # Save off the total number of DoFs distributed
-    sys.n_dofs = current_dof-1
+    distributeDofs(sys)
 
     # Set a flag that this System is initialized
     sys.initialized = true
