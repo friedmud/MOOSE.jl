@@ -1,4 +1,6 @@
 # MOOSE.jl
+[![Build Status](https://travis-ci.org/friedmud/MOOSE.jl.svg?branch=master)](https://travis-ci.org/friedmud/MOOSE.jl)
+
 Multiphysics Object Oriented Simulation Environment In Julia
 
 This is essentially a "mini" version of the true MOOSE multiphysics framework: http://mooseframework.org
