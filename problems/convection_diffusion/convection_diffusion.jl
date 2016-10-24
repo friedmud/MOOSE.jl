@@ -4,7 +4,7 @@ using MOOSE
 mesh = buildSquare(0, 1, 0, 1, 20, 20)
 
 # Create the System to hold the equations
-diffusion_system = System(mesh)
+diffusion_system = System{Float64}(mesh)
 
 # Add a variable to solve for
 u = addVariable!(diffusion_system, "u")

@@ -137,7 +137,7 @@ end
 """
 function computeResidualAndJacobian!(var_residuals::Array{Array{Float64}},
                                      var_jacobians::Matrix{Matrix{Float64}},
-                                     vars::Array{Variable},
+                                     vars::Array{Variable{Float64}},
                                      kernels::Array{Kernel})
     for kernel in kernels
         computeResidualAndJacobian!(var_residuals[kernel.u.id], var_jacobians, vars, kernel)

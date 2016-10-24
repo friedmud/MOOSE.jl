@@ -11,12 +11,10 @@ function computeQpResidual(kernel::ADCoupledConvection, qp::Int64, i::Int64)
 
     other_var = kernel.other_var
 
-#    println("")
-#    println("ov ", other_var.grad[qp])
-#    println("u ", u.grad[qp])
-#    val = other_var.grad[qp] ⋅ u.grad[qp]
-#    println("mult ", val)
-#    println("")
-
     return (other_var.grad[qp] ⋅ u.grad[qp]) * u.phi[qp][i]
 end
+
+# Specifically leaving out computeQpJacobian() to test Automatic Differentiation
+# Note: Any Kernel can be used with AD, even if it defines computeQpJacobian()
+# We're just leaving it out here to make _doubly_ sure that there is no way
+# computeQpJacobian() is getting called!
