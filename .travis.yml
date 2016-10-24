@@ -1,0 +1,21 @@
+# Documentation: http://docs.travis-ci.com/user/languages/julia/
+language: julia
+os:
+  - linux
+  - osx
+julia:
+  - 0.5
+  - nightly
+notifications:
+  email: false
+before_script:
+  - export PATH=$HOME/.local/bin:$PATH
+script:
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+  - julia -e 'Pkg.clone("https://github.com/KristofferC/ContMechTensors.jl")'
+  - julia -e 'Pkg.clone("https://github.com/KristofferC/JuAFEM.jl");'
+  - julia -e 'Pkg.clone(pwd()); Pkg.test("MOOSE"; coverage=true)'
+after_success:
+  - julia -e 'cd(Pkg.dir("MOOSE")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+#  - julia -e 'Pkg.clone("https://github.com/MichaelHatherly/Documenter.jl")'
+#  - julia -e 'cd(Pkg.dir("JuAFEM")); include(joinpath("docs", "make.jl"))'

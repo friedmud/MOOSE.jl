@@ -1,4 +1,4 @@
-importall MOOSE
+using MOOSE
 
 # Create the Mesh
 mesh = buildSquare(0, 1, 0, 1, 10, 10)
