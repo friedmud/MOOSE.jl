@@ -19,7 +19,7 @@ function boundaryIDs(bc::BoundaryCondition)
 end
 
 " Generic `computeJacobian()` for Float64.  Just returns 0 "
-function computeJacobian(bc::BoundaryCondition, var::Variable)
+function computeJacobian(bc::BoundaryCondition, var::Variable{Float64})
     return 0.
 end
 

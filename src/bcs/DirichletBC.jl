@@ -16,7 +16,7 @@ function computeResidual(bc::DirichletBC)
     return u.nodal_value - bc.value
 end
 
-function computeJacobian(bc::DirichletBC, v::Variable)
+function computeJacobian(bc::DirichletBC, v::Variable{Float64})
     u = bc.u
 
     if u.id == v.id
