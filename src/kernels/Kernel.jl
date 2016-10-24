@@ -57,8 +57,8 @@ function computeJacobian!(jacobian::Matrix{Float64}, kernel::Kernel, v::Variable
 end
 
 " Helper function to take a `residual` computed using a Dual and pull the Jacobian out of it "
-function pullJacobianFromResidual!{N,T}(jacobian::Matrix{Float64}, residual::Vector{Dual{N,T}}, kernel::Kernel, v::Variable{Dual{N,T}})
-    u_n_dofs = kernel.u.n_dofs
+function pullJacobianFromResidual!{N,T}(jacobian::Matrix{Float64}, residual::Vector{Dual{N,T}}, u::Variable{Dual{N,T}}, v::Variable{Dual{N,T}})
+    u_n_dofs = u.n_dofs
     v_n_dofs = v.n_dofs
 
     # FIXME: Won't work if the number of dofs is different per variable
@@ -86,7 +86,7 @@ function computeJacobian!{N,T}(jacobian::Matrix{Float64}, kernel::Kernel, v::Var
 
     computeResidual!(residual, kernel)
 
-    pullJacobianFromResidual!(jacobian, residual, kernel, v)
+    pullJacobianFromResidual!(jacobian, residual, kernel.u, v)
 end
 
 
@@ -126,6 +126,46 @@ function computeResidualAndJacobian!{N,T}(residual::Vector,
 
     for v in vars
         jacobian = var_jacobians[kernel.u.id, v.id]
-        pullJacobianFromResidual!(jacobian, this_residual, kernel, v)
+        pullJacobianFromResidual!(jacobian, this_residual, kernel.u, v)
+    end
+end
+
+"""
+    Compute both simultaneously for all Kernels passed in
+
+    Specialization for Float64: Will end up calling `computeJacobian()`
+"""
+function computeResidualAndJacobian!(var_residuals::Array{Array{Float64}},
+                                     var_jacobians::Matrix{Matrix{Float64}},
+                                     vars::Array{Variable},
+                                     kernels::Array{Kernel})
+    for kernel in kernels
+        computeResidualAndJacobian!(var_residuals[kernel.u.id], var_jacobians, vars, kernel)
+    end
+end
+
+"""
+    Compute both simultaneously for all Kernels passed in
+
+    Specialization for Dual: Will use automatic differentiation
+
+    This form is here because it's an optimization over doing every Kernel individually
+"""
+function computeResidualAndJacobian!{N,T}(var_residuals::Array{Array{Dual{N,T}}},
+                                     var_jacobians::Matrix{Matrix{Float64}},
+                                     vars::Array{Variable{Dual{N,T}}},
+                                     kernels::Array{Kernel})
+    # Compute all of the residuals
+    for kernel in kernels
+        computeResidual!(var_residuals[kernel.u.id], kernel)
+    end
+
+    # Pull out the Jacobian entries
+    for u in vars
+        residual = var_residuals[u.id]
+        for v in vars
+            jacobian = var_jacobians[u.id, v.id]
+            pullJacobianFromResidual!(jacobian, residual, u, v)
+        end
     end
 end

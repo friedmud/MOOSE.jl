@@ -51,10 +51,8 @@ function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
             end
         end
 
-        # Get the Residual/Jacobian contributions from each Kernel
-        for kernel in sys.kernels
-            computeResidualAndJacobian!(var_residuals[kernel.u.id], var_jacobians, vars, kernel)
-        end
+        # Get the Residual/Jacobian contributions from all Kernels
+        computeResidualAndJacobian!(var_residuals, var_jacobians, vars, sys.kernels)
 
         # Scatter those entries back out into the Residual and Jacobian
         for i_var in sys.variables
