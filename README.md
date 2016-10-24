@@ -3,7 +3,7 @@ Multiphysics Object Oriented Simulation Environment In Julia
 
 This is essentially a "mini" version of the true MOOSE multiphysics framework: http://mooseframework.org
 
-If you like the way this one works... but you have some serious multiphysics problems to solve you should really use the true MOOSE framework.  It has thousands of more features and scales up to supercomputers...
+If you like the way this one works... but you have some serious multiphysics problems to solve you should really use the true [MOOSE framework](http://mooseframework.org).  It has thousands of more features and scales up to supercomputers...
 
 This one is really a toy.  It's going to be used to try out some new ideas and, of course, it was written to see what Julia was all about!
 
@@ -121,10 +121,10 @@ Now that we've taken care of our PDE operators, we need to handle the boundary c
 Speaking of "boundaries"... our built-in mesh generator automatically added some "sidesets" and "nodesets" in our `Mesh`.  These are sets of boundary geometry that allow us to specify where `BoundaryCondition`s are applied.  `DirichletBC` objects operate on "nodesets".
 
 For the built-in mesh generator the sidesets/nodesets are as follows:
- 1: Bottom
- 2: Right
- 3: Top
- 4: Left
+ * 1: Bottom
+ * 2: Right
+ * 3: Top
+ * 4: Left
 
 By applying `BoundaryCondition` objects to those "boundary IDs" we can select the part of the domain the BC will be applied on.
 
@@ -162,7 +162,7 @@ As you can see, we needed to tell it which `System` to solve... and then call `s
 
 ### Output
 
-Once this is complete the solution will be held within the `solver` object.  To output it to a file so we can view it with (Paraview)[http://www.paraview.org] we can do:
+Once this is complete the solution will be held within the `solver` object.  To output it to a file so we can view it with [Paraview](http://www.paraview.org) we can do:
 
 ```julia
 out = VTKOutput();
@@ -171,7 +171,7 @@ output(out, solver, "simple_diffusion_out");
 
 "VTK" is a visualization file format that many third-party visualization tools (such as Paraview) can read.
 
-That last step should have produced a `simple_diffusion_out.vtu` file in your directory.  You can then use Paraview to open the file and view the result:
+That last step should have produced a `simple_diffusion_out.vtu` file in your directory.  You can then use Paraview to open the file and view the result.
 
 ## Next Steps
 
