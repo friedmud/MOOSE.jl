@@ -11,9 +11,11 @@ abstract Kernel
     Required to be overrdien!
 
     Inherited types should fill in the Residual vector
+
+    Note: specifically doesn't specify the return type because it can change (i.e. Float64 vs Dual)
 """
-function computeQpResidual(residual::Vector{Float64}, kernel::Kernel, qp::Int64, i::Int64)
-    throw(MethodError(computeQpResidual!, residual, kernel))
+@inline function computeQpResidual(kernel::Kernel, qp::Int64, i::Int64)
+    throw(MethodError(computeQpResidual, kernel, qp, i))
 end
 
 """
@@ -23,8 +25,26 @@ end
 
     Computes the derivative of the residual for `kernel` WRT the variable `v`
     and stores it in `jacobian`
+
+    Should _aways_ return Float64 and should be inlined for speed
 """
-function computeQpJacobian!(jacobian::Matrix{Float64}, kernel::Kernel, v::Variable, qp::Int64, i::Int64, j::Int64)
+@inline function computeQpJacobian(kernel::Kernel, v::Variable, qp::Int64, i::Int64, j::Int64)::Float64
+    return 0.
+end
+
+"""
+    Can be overridden to specify exactly which variables this Kernel couples to.
+
+    This list should include "u" along with any other Variable the Kernel uses.
+
+    If it is specified it will be used to optimized manual Jacobian evaluation
+    (cuts down the amount of derivatives to compute)
+
+    Note: This function is NOT used at all for automatic differentiation.
+    So there is no need to define it if you're using pure AD
+"""
+@inline function coupledVars(kernel::Kernel)::Array{Variable}
+    return []
 end
 
 function computeResidual!(residual::Vector, kernel::Kernel)
@@ -39,6 +59,13 @@ function computeResidual!(residual::Vector, kernel::Kernel)
     end
 end
 
+"""
+    The workhorse for manual Jacobian evaluation.
+
+    It is possible to override this if you like instead of computeQpJacobian().
+
+    In my (DRG) testing, doing that can shave a few percent off of calculations... but I don't think it's worth it.
+"""
 function computeJacobian!(jacobian::Matrix{Float64}, kernel::Kernel, v::Variable{Float64})
     u = kernel.u
     u_n_dofs = kernel.u.n_dofs
@@ -48,8 +75,8 @@ function computeJacobian!(jacobian::Matrix{Float64}, kernel::Kernel, v::Variable
 
     # Derivative of the residual WRT the variable it's acting on
     for qp in 1:n_qp
-        for i in 1:u_n_dofs
-            for j in 1:v_n_dofs
+        for j in 1:v_n_dofs
+            for i in 1:u_n_dofs
                 jacobian[i,j] += computeQpJacobian(kernel, v, qp, i, j) * u.JxW[qp]
             end
         end
@@ -101,7 +128,15 @@ function computeResidualAndJacobian!(residual::Vector{Float64},
                                      kernel::Kernel)
     computeResidual!(residual, kernel)
 
-    for v in vars
+    # See if this Kernel has specified its couple variables
+    coupled_vars = coupledVars(kernel)
+
+    # If they haven't then assume it's coupled to everything
+    if length(coupled_vars) == 0
+        coupled_vars = vars
+    end
+
+    for v in coupled_vars
         computeJacobian!(var_jacobians[kernel.u.id, v.id], kernel, v)
     end
 end

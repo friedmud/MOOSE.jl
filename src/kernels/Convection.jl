@@ -5,13 +5,13 @@ type Convection <: Kernel
     velocity::Vec{2, Float64}
 end
 
-function computeQpResidual(kernel::Convection, qp::Int64, i::Int64)
+@inline function computeQpResidual(kernel::Convection, qp::Int64, i::Int64)
     u = kernel.u
 
     return (kernel.velocity ⋅ u.grad[qp]) * u.phi[qp][i]
 end
 
-function computeQpJacobian(kernel::Convection, v::Variable, qp::Int64, i::Int64, j::Int64)
+@inline function computeQpJacobian(kernel::Convection, v::Variable, qp::Int64, i::Int64, j::Int64)::Float64
     u = kernel.u
 
     if u.id == v.id
@@ -19,4 +19,8 @@ function computeQpJacobian(kernel::Convection, v::Variable, qp::Int64, i::Int64,
     end
 
     return 0
+end
+
+@inline function coupledVars(kernel::Convection)::Array{Variable}
+    return [kernel.u]
 end

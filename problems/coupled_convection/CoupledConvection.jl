@@ -6,7 +6,7 @@ end
 
 import MOOSE.computeQpResidual
 
-function computeQpResidual(kernel::CoupledConvection, qp::Int64, i::Int64)
+@inline function computeQpResidual(kernel::CoupledConvection, qp::Int64, i::Int64)
     u = kernel.u
 
     other_var = kernel.other_var
@@ -16,7 +16,7 @@ end
 
 import MOOSE.computeQpJacobian
 
-function computeQpJacobian(kernel::CoupledConvection, v::Variable, qp::Int64, i::Int64, j::Int64)
+@inline function computeQpJacobian(kernel::CoupledConvection, v::Variable, qp::Int64, i::Int64, j::Int64)::Float64
     u = kernel.u
 
     other_var = kernel.other_var
@@ -28,4 +28,10 @@ function computeQpJacobian(kernel::CoupledConvection, v::Variable, qp::Int64, i:
     end
 
     return 0
+end
+
+import MOOSE.coupledVars
+
+@inline function coupledVars(kernel::CoupledConvection)::Array{Variable}
+    return [kernel.u, kernel.other_var]
 end

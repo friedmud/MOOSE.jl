@@ -6,7 +6,7 @@ end
 
 import MOOSE.computeQpResidual
 
-function computeQpResidual(kernel::ADCoupledConvection, qp::Int64, i::Int64)
+@inline function computeQpResidual(kernel::ADCoupledConvection, qp::Int64, i::Int64)
     u = kernel.u
 
     other_var = kernel.other_var

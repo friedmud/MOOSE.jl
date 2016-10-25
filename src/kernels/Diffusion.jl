@@ -3,13 +3,13 @@ type Diffusion <: Kernel
     u::Variable
 end
 
-function computeQpResidual(kernel::Diffusion, qp::Int64, i::Int64)
+@inline function computeQpResidual(kernel::Diffusion, qp::Int64, i::Int64)
     u = kernel.u
 
     return u.grad[qp] ⋅ u.grad_phi[qp][i]
 end
 
-function computeQpJacobian(kernel::Diffusion, v::Variable, qp::Int64, i::Int64, j::Int64)
+@inline function computeQpJacobian(kernel::Diffusion, v::Variable, qp::Int64, i::Int64, j::Int64)::Float64
     u = kernel.u
 
     if u.id == v.id
@@ -17,4 +17,8 @@ function computeQpJacobian(kernel::Diffusion, v::Variable, qp::Int64, i::Int64, 
     end
 
     return 0
+end
+
+@inline function coupledVars(kernel::Diffusion)::Array{Variable}
+    return [kernel.u]
 end
