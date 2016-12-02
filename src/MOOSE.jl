@@ -36,6 +36,7 @@ export boundaryIDs, DirichletBC
 
 export output, VTKOutput
 
+export invalid_processor_id
 
 
 # The default value type that will be used by MOOSE.jl
@@ -53,6 +54,9 @@ include("mesh/Element.jl")
 include("mesh/BoundaryInfo.jl")
 include("mesh/Mesh.jl")
 include("mesh/Generation.jl")
+include("partitioners/Partitioner.jl")
+include("partitioners/SimplePartitioner.jl")
+include("mesh/MeshInitialization.jl")
 include("systems/Variable.jl")
 include("kernels/Kernel.jl")
 include("bcs/BoundaryCondition.jl")
