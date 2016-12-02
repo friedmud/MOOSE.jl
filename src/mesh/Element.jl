@@ -3,13 +3,13 @@
 """
 type Element <: DofObject
     "Unique ID for the Element"
-    id::Int32
+    id::Int64
 
     "The nodes that make up the physical position"
     nodes::Array{Node}
 
     "Degrees of freedom assigned to this Element"
-    dofs::Array{Int32}
+    dofs::Array{Int64}
 end
 
 

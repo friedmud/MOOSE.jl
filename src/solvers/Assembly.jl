@@ -44,7 +44,7 @@ function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
             for j_var in sys.variables
                 # Because for some inexplicable reason Julia doesn't provide a resize!() for Matrices...
                 if size(var_jacobians[i_var.id, j_var.id]) != (i_var.n_dofs, j_var.n_dofs)
-                    var_jacobians[i_var.id, j_var.id] = Matrix{Float64}(((Int64)(i_var.n_dofs), (Int64)(j_var.n_dofs)))
+                    var_jacobians[i_var.id, j_var.id] = Matrix{Float64}((i_var.n_dofs, j_var.n_dofs))
                 end
 
                 fill!(var_jacobians[i_var.id, j_var.id], 0.)
@@ -73,7 +73,7 @@ function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
     bcs = sys.bcs
 
     # First: get the set of boundary IDs we need to operate on:
-    bids = Set{Int32}()
+    bids = Set{Int64}()
     for bc in bcs
         union!(bids, bc.bids)
     end
@@ -82,10 +82,9 @@ function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
     temp_residual = Array{T}(1)
     temp_jacobian = Array{Float64}(n_vars)
 
-    rows_to_zero = (Int32)[]
+    rows_to_zero = []
 
     entries_in_bc_rows= []
-#    entries_in_bc_rows_vals = []
 
     # Now go over each nodeset and apply the BCs
     for bid in bids

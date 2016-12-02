@@ -16,10 +16,10 @@ addKernel!(diffusion_system, Diffusion(u))
 addKernel!(diffusion_system, Convection(u, Vec{2}((10.,0.))))
 
 # u = 0 on the Left
-addBC!(diffusion_system, DirichletBC(u, (Int32)[4], 0.0))
+addBC!(diffusion_system, DirichletBC(u, [4], 0.0))
 
 # u = 1 on the Right
-addBC!(diffusion_system, DirichletBC(u, (Int32)[2], 1.0))
+addBC!(diffusion_system, DirichletBC(u, [2], 1.0))
 
 # Initialize the system of equations
 initialize!(diffusion_system)

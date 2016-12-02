@@ -16,6 +16,9 @@ using MiniPETSc
 
 import MiniPETSc.assemble!
 import MiniPETSc.solve!
+import MiniPETSc.zero!
+import MiniPETSc.plusEquals!
+import MiniPETSc.zeroRows!
 
 export dofs
 
@@ -39,10 +42,9 @@ export output, VTKOutput
 value_type = Float64
 
 # Constructor for making a Dual with a particular value and index
-dualVariable{T}(value::T, index::Int32, num_partials::Int32) = Dual(value, Partials(ntuple(n -> n != index ? zero(Float64) : 1.0, num_partials)))
+dualVariable{T}(value::T, index::Int64, num_partials::Int64) = Dual(value, Partials(ntuple(n -> n != index ? zero(Float64) : 1.0, num_partials)))
 
-
-
+include("numerics/JuliaSupport.jl")
 include("mesh/DofObject.jl")
 include("mesh/Node.jl")
 include("mesh/Element.jl")

@@ -25,7 +25,7 @@ type System{T}
     bcs::Array{BoundaryCondition}
 
     " The total number of degrees of freedom "
-    n_dofs::Int32
+    n_dofs::Int64
 
     " Whether or not initialize!() has been called for this System "
     initialized::Bool
@@ -56,7 +56,7 @@ end
 function addVariable!{T}(sys::System{T}, name::String)
     n_vars = length(sys.variables)
 
-    var = Variable{T}((Int32)(n_vars+1), name)
+    var = Variable{T}(n_vars+1, name)
 
     push!(sys.variables, var)
 
@@ -177,12 +177,12 @@ function reinit!{T}(sys::System{T}, elem::Element, solution::AbstractArray)
 end
 
 " Helper function for getting a Float64 dof_value at a Node "
-function dofValue(solution::AbstractArray, var::Variable{Float64}, dof_index::Int32)
+function dofValue(solution::AbstractArray, var::Variable{Float64}, dof_index::Int64)
     return solution[dof_index]
 end
 
 " Helper function for getting a Dual dof_value at a Node "
-function dofValue{N,T}(solution::AbstractArray, var::Variable{Dual{N,T}}, dof_index::Int32)
+function dofValue{N,T}(solution::AbstractArray, var::Variable{Dual{N,T}}, dof_index::Int64)
     return dualVariable(solution[dof_index], var.id, N)
 end
 

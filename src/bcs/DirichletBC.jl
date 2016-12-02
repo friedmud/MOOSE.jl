@@ -4,7 +4,7 @@ type DirichletBC <: NodalBC
     u::Variable
 
     " The boundary ID to apply this BC to "
-    bids::Array{Int32}
+    bids::Array{Int64}
 
     " The value on the boundary "
     value::Float64
