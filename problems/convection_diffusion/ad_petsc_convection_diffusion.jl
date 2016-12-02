@@ -25,7 +25,7 @@ addBC!(diffusion_system, DirichletBC(u, [2], 1.0))
 initialize!(diffusion_system)
 
 # Create a solver and solve
-solver = PetscDenseImplicitSolver(diffusion_system)
+solver = PetscImplicitSolver(diffusion_system)
 solve!(solver)
 
 # Output

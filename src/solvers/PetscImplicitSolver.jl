@@ -1,5 +1,5 @@
 " Linear solver that uses PETSc "
-type PetscDenseImplicitSolver <: DenseImplicitSolver
+type PetscImplicitSolver <: DenseImplicitSolver
     " The System the solve will be done for "
     system::System
 
@@ -15,12 +15,12 @@ type PetscDenseImplicitSolver <: DenseImplicitSolver
     " Whether or not this Solver has been initialized "
     initialized::Bool
 
-    PetscDenseImplicitSolver(system::System) = new(system, PetscMat(), PetscVec(), PetscVec(), false)
+    PetscImplicitSolver(system::System) = new(system, PetscMat(), PetscVec(), PetscVec(), false)
 end
 
 
 " Initializes the matrix and rhs to the correct size "
-function initialize!(solver::PetscDenseImplicitSolver)
+function initialize!(solver::PetscImplicitSolver)
     @assert solver.system.initialized
 
     n_dofs = solver.system.n_dofs
@@ -40,7 +40,7 @@ end
 
     `assemble` controls whether or not the system will be assembled automatically
 """
-function solve!(solver::PetscDenseImplicitSolver; assemble=true)
+function solve!(solver::PetscImplicitSolver; assemble=true)
     if !solver.initialized
         initialize!(solver)
     end

@@ -28,7 +28,7 @@ export buildSquare
 
 export Variable, System, addVariable!, addKernel!, addBC!, initialize!
 
-export Solver, solve!, JuliaDenseImplicitSolver, JuliaDenseNonlinearImplicitSolver, PetscDenseImplicitSolver
+export Solver, solve!, JuliaDenseImplicitSolver, JuliaDenseNonlinearImplicitSolver, PetscImplicitSolver
 
 export Kernel, Diffusion, Convection
 
@@ -61,7 +61,7 @@ include("outputs/Output.jl")
 
 include("solvers/JuliaDenseImplicitSolver.jl")
 include("solvers/JuliaDenseNonlinearImplicitSolver.jl")
-include("solvers/PetscDenseImplicitSolver.jl")
+include("solvers/PetscImplicitSolver.jl")
 
 include("kernels/Diffusion.jl")
 include("kernels/Convection.jl")
