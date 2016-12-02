@@ -1,6 +1,6 @@
 type Variable{T}
     " Unique Identifier for the variable "
-    id::Int64
+    id::Int32
 
     " Name of the Variable "
     name::String
@@ -21,27 +21,27 @@ type Variable{T}
     JxW::Array{Float64,1}
 
     " Current DoFs "
-    dofs::Array{Int64}
+    dofs::Array{Int32}
 
     " Current number of dofs on this element "
-    n_dofs::Int64
+    n_dofs::Int32
 
     " Current number of quadrature points on this element "
-    n_qp::Int64
+    n_qp::Int32
 
     " The value at a node (for use in NodalBCs) "
     nodal_value::T
 
     " The dof at a node (for use with NodalBCs) "
-    nodal_dof::Int64
+    nodal_dof::Int32
 
-    Variable(id::Int64, name::String) = new(id, name,
+    Variable(id::Int32, name::String) = new(id, name,
                                             Array{T}(0),
                                             Array{Vec{2,T}}(0),
                                             Array{Array{Float64}}(0),
                                             Array{Array{Vec{2,Float64}},1}(0),
                                             Array{Float64,1}(0),
-                                            Array{Int64}(0),
+                                            Array{Int32}(0),
                                             0,
                                             0,
                                             zero(T),
@@ -49,7 +49,7 @@ type Variable{T}
 end
 
 " Recompute all of the data inside of a Variable for a given element "
-function reinit!{T}(var::Variable, fe_values::FECellValues, dof_indices::Array{Int64}, dof_values::Array{T})
+function reinit!{T}(var::Variable, fe_values::FECellValues, dof_indices::Array{Int32}, dof_values::Array{T})
     var.phi = fe_values.N
     var.grad_phi = fe_values.dNdx
     var.JxW = fe_values.detJdV
@@ -65,7 +65,7 @@ function reinit!{T}(var::Variable, fe_values::FECellValues, dof_indices::Array{I
 end
 
 " Recompute all of the data inside of a Variable for a given Node "
-function reinit!{T}(var::Variable, dof_index::Int64, dof_value::T)
+function reinit!{T}(var::Variable, dof_index::Int32, dof_value::T)
     var.nodal_dof = dof_index
     var.nodal_value = dof_value
 end

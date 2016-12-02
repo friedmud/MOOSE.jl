@@ -1,20 +1,20 @@
 type ElemSidePair
     element::Element
-    side::Int64
+    side::Int32
 end
 
 type BoundaryInfo
     "Unique IDs for sidesets"
-    sidesets::Array{Int64}
+    sidesets::Array{Int32}
 
     "Unique IDs for nodesets"
-    nodesets::Array{Int64}
+    nodesets::Array{Int32}
 
     "Map a sideset ID into an array of element/sides"
-    side_list::Dict{Int64, Array{ElemSidePair}}
+    side_list::Dict{Int32, Array{ElemSidePair}}
 
     "Map a nodeset ID to Nodes"
-    node_list::Dict{Int64, Array{Node}}
+    node_list::Dict{Int32, Array{Node}}
 
-    BoundaryInfo() = new([], [], Dict{Int64, Array{ElemSidePair}}(), Dict{Int64, Array{Node}}())
+    BoundaryInfo() = new([], [], Dict{Int32, Array{ElemSidePair}}(), Dict{Int32, Array{Node}}())
 end

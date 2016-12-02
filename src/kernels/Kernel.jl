@@ -14,7 +14,7 @@ abstract Kernel
 
     Note: specifically doesn't specify the return type because it can change (i.e. Float64 vs Dual)
 """
-@inline function computeQpResidual(kernel::Kernel, qp::Int64, i::Int64)
+@inline function computeQpResidual(kernel::Kernel, qp::Integer, i::Integer)
     throw(MethodError(computeQpResidual, kernel, qp, i))
 end
 
@@ -28,7 +28,7 @@ end
 
     Should _aways_ return Float64 and should be inlined for speed
 """
-@inline function computeQpJacobian(kernel::Kernel, v::Variable, qp::Int64, i::Int64, j::Int64)::Float64
+@inline function computeQpJacobian(kernel::Kernel, v::Variable, qp::Integer, i::Integer, j::Integer)::Float64
     return 0.
 end
 

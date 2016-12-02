@@ -1,13 +1,13 @@
 "Represents a point in physical space"
 type Node{dim} <: DofObject
     "A unique ID for the Node"
-    id::Int64
+    id::Int32
 
     "x,y,z coordinates"
     coords::Vec{2, Float64}
 
     "Degrees of freedom assigned to this Node"
-    dofs::Array{Int64}
+    dofs::Array{Int32}
 end
 
 import Base.show

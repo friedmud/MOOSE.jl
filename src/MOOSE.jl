@@ -12,6 +12,11 @@ using ForwardDiff
 using ForwardDiff: Partials, Dual, value, partials, npartials, setindex, convert
 export Dual
 
+using MiniPETSc
+
+import MiniPETSc.assemble!
+import MiniPETSc.solve!
+
 export dofs
 
 export Node, Element, Mesh
@@ -20,7 +25,7 @@ export buildSquare
 
 export Variable, System, addVariable!, addKernel!, addBC!, initialize!
 
-export Solver, solve!, JuliaDenseImplicitSolver, JuliaDenseNonlinearImplicitSolver
+export Solver, solve!, JuliaDenseImplicitSolver, JuliaDenseNonlinearImplicitSolver, PetscDenseImplicitSolver
 
 export Kernel, Diffusion, Convection
 
@@ -28,11 +33,15 @@ export boundaryIDs, DirichletBC
 
 export output, VTKOutput
 
+
+
 # The default value type that will be used by MOOSE.jl
 value_type = Float64
 
 # Constructor for making a Dual with a particular value and index
-dualVariable{T}(value::T, index::Int64, num_partials::Int64) = Dual(value, Partials(ntuple(n -> n != index ? zero(Float64) : 1.0, num_partials)))
+dualVariable{T}(value::T, index::Int32, num_partials::Int32) = Dual(value, Partials(ntuple(n -> n != index ? zero(Float64) : 1.0, num_partials)))
+
+
 
 include("mesh/DofObject.jl")
 include("mesh/Node.jl")
@@ -50,6 +59,7 @@ include("outputs/Output.jl")
 
 include("solvers/JuliaDenseImplicitSolver.jl")
 include("solvers/JuliaDenseNonlinearImplicitSolver.jl")
+include("solvers/PetscDenseImplicitSolver.jl")
 
 include("kernels/Diffusion.jl")
 include("kernels/Convection.jl")

@@ -15,8 +15,8 @@ function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
     n_vars = length(vars)
 
     # Reset the Residual and Jacobian
-    fill!(solver.rhs, 0.)
-    fill!(solver.mat, 0.)
+    zero!(solver.rhs)
+    zero!(solver.mat)
 
     # Each inner array is of length n_dofs for each var
     var_residuals = Array{Array{T}}(n_vars)
@@ -44,7 +44,7 @@ function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
             for j_var in sys.variables
                 # Because for some inexplicable reason Julia doesn't provide a resize!() for Matrices...
                 if size(var_jacobians[i_var.id, j_var.id]) != (i_var.n_dofs, j_var.n_dofs)
-                    var_jacobians[i_var.id, j_var.id] = Matrix{Float64}((i_var.n_dofs, j_var.n_dofs))
+                    var_jacobians[i_var.id, j_var.id] = Matrix{Float64}(((Int64)(i_var.n_dofs), (Int64)(j_var.n_dofs)))
                 end
 
                 fill!(var_jacobians[i_var.id, j_var.id], 0.)
@@ -56,14 +56,16 @@ function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
 
         # Scatter those entries back out into the Residual and Jacobian
         for i_var in sys.variables
-            solver.rhs[i_var.dofs] += var_residuals[i_var.id]
+            plusEquals!(solver.rhs, var_residuals[i_var.id], i_var.dofs)
 
             for j_var in sys.variables
-                solver.mat[i_var.dofs, j_var.dofs] += var_jacobians[i_var.id, j_var.id]
+                plusEquals!(solver.mat, var_jacobians[i_var.id, j_var.id], i_var.dofs, j_var.dofs)
             end
         end
     end
 
+    assemble!(solver.mat)
+    assemble!(solver.rhs)
 
     # Now apply BCs
 
@@ -71,7 +73,7 @@ function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
     bcs = sys.bcs
 
     # First: get the set of boundary IDs we need to operate on:
-    bids = Set{Int64}()
+    bids = Set{Int32}()
     for bc in bcs
         union!(bids, bc.bids)
     end
@@ -79,6 +81,11 @@ function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
     # Reusable storage for calling residual and jacobian calculations on NodalBCs
     temp_residual = Array{T}(1)
     temp_jacobian = Array{Float64}(n_vars)
+
+    rows_to_zero = (Int32)[]
+
+    entries_in_bc_rows= []
+#    entries_in_bc_rows_vals = []
 
     # Now go over each nodeset and apply the BCs
     for bid in bids
@@ -99,14 +106,25 @@ function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
                     solver.rhs[bc.u.nodal_dof] = temp_residual[1]
 
                     # Now - we need to zero out the row in the matrix corresponding to this dof
-                    solver.mat[bc.u.nodal_dof,:] = 0
+                    push!(rows_to_zero, bc.u.nodal_dof)
 
                     # And put this piece in place
                     for v in vars
-                        solver.mat[bc.u.nodal_dof,v.nodal_dof] = temp_jacobian[v.id]
+                        #solver.mat[bc.u.nodal_dof,v.nodal_dof] = temp_jacobian[v.id]
+                        push!(entries_in_bc_rows, (bc.u.nodal_dof,v.nodal_dof,temp_jacobian[v.id]))
                     end
                 end
             end
         end
     end
+
+    zeroRows!(solver.mat, rows_to_zero)
+    assemble!(solver.mat)
+
+    for entry in entries_in_bc_rows
+        solver.mat[entry[1], entry[2]] = entry[3]
+    end
+
+    assemble!(solver.mat)
+    assemble!(solver.rhs)
 end

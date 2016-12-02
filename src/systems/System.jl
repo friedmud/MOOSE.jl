@@ -25,7 +25,7 @@ type System{T}
     bcs::Array{BoundaryCondition}
 
     " The total number of degrees of freedom "
-    n_dofs::Int64
+    n_dofs::Int32
 
     " Whether or not initialize!() has been called for this System "
     initialized::Bool
@@ -56,7 +56,7 @@ end
 function addVariable!{T}(sys::System{T}, name::String)
     n_vars = length(sys.variables)
 
-    var = Variable{T}(n_vars+1, name)
+    var = Variable{T}((Int32)(n_vars+1), name)
 
     push!(sys.variables, var)
 
@@ -123,7 +123,7 @@ end
 
     Specialization for Float64
 """
-function dofValues!(dof_values::Array, sys::System{Float64}, solution::Array, var::Variable, dof_indices::Array)
+function dofValues!(dof_values::Array, sys::System{Float64}, solution::AbstractArray, var::Variable, dof_indices::Array)
     resize!(dof_values, length(dof_indices))
     dof_values[:] = solution[dof_indices]
 end
@@ -133,7 +133,7 @@ end
 
     Specialization for Dual
 """
-function dofValues!{N,T}(dof_values::Array, sys::System{Dual{N,T}}, solution::Array, var::Variable, dof_indices::Array)
+function dofValues!{N,T}(dof_values::Array, sys::System{Dual{N,T}}, solution::AbstractArray, var::Variable, dof_indices::Array)
     resize!(dof_values, length(dof_indices))
 
     values = solution[dof_indices]
@@ -155,7 +155,7 @@ end
 """
     Reinitialize all of the data and objects in the system for the current Element
 """
-function reinit!{T}(sys::System{T}, elem::Element, solution::Array)
+function reinit!{T}(sys::System{T}, elem::Element, solution::AbstractArray)
     # Grab all of the coordinattes for the current element
     coords = [node.coords for node in elem.nodes]
 
@@ -177,19 +177,19 @@ function reinit!{T}(sys::System{T}, elem::Element, solution::Array)
 end
 
 " Helper function for getting a Float64 dof_value at a Node "
-function dofValue(solution::Array, var::Variable{Float64}, dof_index::Int64)
+function dofValue(solution::AbstractArray, var::Variable{Float64}, dof_index::Int32)
     return solution[dof_index]
 end
 
 " Helper function for getting a Dual dof_value at a Node "
-function dofValue{N,T}(solution::Array, var::Variable{Dual{N,T}}, dof_index::Int64)
+function dofValue{N,T}(solution::AbstractArray, var::Variable{Dual{N,T}}, dof_index::Int32)
     return dualVariable(solution[dof_index], var.id, N)
 end
 
 """
     Reinitialize all of the data and objects in the system for the current Node
 """
-function reinit!{T}(sys::System{T}, node::Node, solution::Array)
+function reinit!{T}(sys::System{T}, node::Node, solution::AbstractArray)
     # Reinitialize the variable values
     for var in sys.variables
         dof_index = node.dofs[var.id]
