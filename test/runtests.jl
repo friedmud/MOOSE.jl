@@ -1,5 +1,6 @@
-using MOOSE
+
 using JuAFEM
+using MOOSE
 
 using ForwardDiff
 using ForwardDiff: Partials, Dual, value, partials, npartials, setindex
@@ -22,3 +23,5 @@ include("test_DirichletBC.jl")
 include("test_VTKOutput.jl")
 
 include("test_JuliaDenseImplicitSolver.jl")
+
+include("test_PetscImplicitSolver.jl")
