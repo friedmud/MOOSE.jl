@@ -119,5 +119,7 @@ function buildSquare(xmin::Real, xmax::Real, ymin::Real, ymax::Real, n_elems_x::
     mesh.elements = elements
     mesh.nodes = nodes
 
+    initialize!(mesh)
+
     return mesh
 end
