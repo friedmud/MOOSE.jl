@@ -36,7 +36,7 @@ function buildSquare(xmin::Real, xmax::Real, ymin::Real, ymax::Real, n_elems_x::
             x = xmin + ((x_idx-1) * x_increment)
 
             # Create the node
-            node = Node{2}(node_id, Vec{2}((x,y)), [])
+            node = Node{2}(node_id, Vec{2}((x,y)), [], invalid_processor_id)
 
             # Save it off
             nodes[node_id] = node
@@ -83,7 +83,8 @@ function buildSquare(xmin::Real, xmax::Real, ymin::Real, ymax::Real, n_elems_x::
                                nodes[idx(x_idx+1, y_idx)],
                                nodes[idx(x_idx+1, y_idx+1)],
                                nodes[idx(x_idx, y_idx+1)]],
-                              [])
+                              [],
+                              invalid_processor_id)
 
             # Save it off
             elements[element_id] = element

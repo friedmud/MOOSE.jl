@@ -10,6 +10,9 @@ type Element <: DofObject
 
     "Degrees of freedom assigned to this Element"
     dofs::Array{Int64}
+
+    "ProcessorID this Element is assigned to"
+    processor_id::Int64
 end
 
 
@@ -19,4 +22,5 @@ function show(io::IO, elem::Element)
     println("Element: ", elem.id)
     println("  Nodes: ", [node.id for node in elem.nodes])
     println("  Dofs: ", elem.dofs)
+    println("  pid: ", elem.processor_id)
 end

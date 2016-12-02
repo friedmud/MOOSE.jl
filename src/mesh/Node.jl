@@ -8,6 +8,9 @@ type Node{dim} <: DofObject
 
     "Degrees of freedom assigned to this Node"
     dofs::Array{Int64}
+
+    "ProcessorID this Node is assigned to"
+    processor_id::Int64
 end
 
 import Base.show
@@ -16,4 +19,5 @@ function show(io::IO, node::Node)
     println("Node: ", node.id)
     println("  Coords: ", node.coords)
     println("  Dofs: ", node.dofs)
+    println("  pid: ", node.processor_id)
 end

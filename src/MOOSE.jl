@@ -20,7 +20,7 @@ import MiniPETSc.zero!
 import MiniPETSc.plusEquals!
 import MiniPETSc.zeroRows!
 
-export dofs
+export dofs, processor_id
 
 export Node, Element, Mesh
 
@@ -43,6 +43,8 @@ value_type = Float64
 
 # Constructor for making a Dual with a particular value and index
 dualVariable{T}(value::T, index::Int64, num_partials::Int64) = Dual(value, Partials(ntuple(n -> n != index ? zero(Float64) : 1.0, num_partials)))
+
+const invalid_processor_id = -1
 
 include("numerics/JuliaSupport.jl")
 include("mesh/DofObject.jl")
