@@ -17,6 +17,25 @@ function buildNodeToElemMap!(mesh::Mesh)
 end
 
 """
+    Build lists of local elements and nodes
+"""
+function buildNodeAndElemLists(mesh::Mesh)
+    proc_id = MPI.Comm_rank(MPI.COMM_WORLD)
+
+    for elem in mesh.elements
+        if elem.processor_id == proc_id
+            push!(mesh.local_elements, elem)
+        end
+    end
+
+    for node in mesh.nodes
+        if node.processor_id == proc_id
+            push!(mesh.local_nodes, node)
+        end
+    end
+end
+
+"""
     Called after adding all of the nodes and elements to the mesh.
     Partitions the mesh and assigns processor IDs
 """
@@ -24,4 +43,6 @@ function initialize!(mesh::Mesh)
     buildNodeToElemMap!(mesh)
 
     partition!(mesh, SimplePartitioner)
+
+    buildNodeAndElemLists(mesh)
 end

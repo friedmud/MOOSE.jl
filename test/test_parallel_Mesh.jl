@@ -20,4 +20,7 @@
     @test mesh.elements[2].id == 12
 
     @test mesh.node_to_elem_map[3] == [element, element2]
+
+    @test element.processor_id == 0
+    @test element2.processor_id == 1
 end

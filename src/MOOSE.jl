@@ -2,9 +2,10 @@ __precompile__()
 
 module MOOSE
 
-using Reexport
+using MPI
 
-@reexport using ContMechTensors
+using ContMechTensors
+
 using WriteVTK
 using JuAFEM
 

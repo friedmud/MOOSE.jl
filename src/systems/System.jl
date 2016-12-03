@@ -27,6 +27,15 @@ type System{T}
     " The total number of degrees of freedom "
     n_dofs::Int64
 
+    " Number of local degrees of freedom "
+    local_n_dofs::Int64
+
+    " The first DOF on this processor "
+    first_local_dof::Int64
+
+    " The last DOF on this processor "
+    last_local_dof::Int64
+
     " Whether or not initialize!() has been called for this System "
     initialized::Bool
 
@@ -44,6 +53,9 @@ type System{T}
                                   Array{Variable}(0),
                                   Array{Kernel}(0),
                                   Array{BoundaryCondition}(0),
+                                  0,
+                                  0,
+                                  0,
                                   0,
                                   false,
                                   QuadratureRule{2,RefCube}(:legendre, 2),
@@ -79,23 +91,71 @@ function distributeDofs(sys::System)
     # These will be "node major"
     n_vars = length(sys.variables)
 
+    # Find the number of dofs on each processor
+    dofs_per_proc = Array{Int64}(MPI.Comm_size(MPI.COMM_WORLD))
+    fill!(dofs_per_proc, 0)
+
+    # Here's the way this works... what we want is the dof IDs for each processor to be contiguous
+    # In addition, we want the dof IDs to be increasing with processor_id
+    # To do that, we're going to find the total number of DoFs on each processor and communicate
+    # that into a vector on every processor.  Next, we'll compute the cumsum of that vector.
+    # That cumsum will give us the starting DoF ID for each processor (if we add 1 to it)
+    # With one small change the first processor needs to start at 1...
+    # and the final entry in the cumsum is useless
+    # So we'll do a little vector manipulation to fix that up.
+    #
+    # At that point we can loop over the elements and assign dof IDs for ALL dof objects
+    # (Yes, even for the ones not owned by this processor)
+    # We'll keep track of the current DoF ID for each processor as we go.
+    # Every processor will be doing the same thing simultaneously so all processors will
+    # end up with exactly the same information.
+    #
+    # You could attempt to parallelize this... but the gains are minimal unless you want
+    # to go to a true distributed mesh.  The reason why is that you would need to add
+    # a communication step... but you would still have to assign them to every node on every
+    # processor anyway.  At least by doing it this way there is no communication.
+
+    # For now we're just going to say that the number of dofs is the number of
+    # local nodes * number of variables.  This would be much more complicated to do if we
+    # had element degrees of freedom or higher order shape functions
+    sys.local_n_dofs = n_vars * length(sys.mesh.local_nodes)
+
+    dofs_per_proc = MPI.Allgather([sys.local_n_dofs], 1, MPI.COMM_WORLD)
+
+    proc_current_dof = cumsum(dofs_per_proc)
+
+    proc_current_dof .+= 1
+
+    # The first processor is going to start at 1
+    unshift!(proc_current_dof, 1)
+
+    # Remove the last entry
+    pop!(proc_current_dof)
+
+    proc_id = MPI.Comm_rank(MPI.COMM_WORLD)
+
+    # Set our local information
+    sys.first_local_dof = proc_current_dof[proc_id + 1] # Don't forget that MPI is 0-based!
+    sys.last_local_dof = sys.first_local_dof + sys.local_n_dofs - 1
+
     # Go over the elements and set the DoFs for the nodes (if they haven't already been set)
     # We go over elements for a couple of reasons... but the main one for now is to match
     # the way libMesh does it to make it easy to compare Jacobian/Residual matrices!
-
-    current_dof = 1
-
     for elem in sys.mesh.elements
         for node in elem.nodes
+            node_proc_id = node.processor_id
             if length(node.dofs) == 0 # Only set DoFs if they haven't been set before
+                current_dof = proc_current_dof[node.processor_id + 1] # Don't forget about 0-based indexing!
+
                 node.dofs = [x for x in current_dof:((n_vars+current_dof)-1)]
-                current_dof += n_vars
+
+                proc_current_dof[node.processor_id + 1] += n_vars
             end
         end
     end
 
     # Save off the total number of DoFs distributed
-    sys.n_dofs = current_dof-1
+    sys.n_dofs = sum(dofs_per_proc)
 end
 
 """
@@ -112,7 +172,7 @@ function initialize!(sys::System)
 end
 
 """
-    Grab all of the DoF indices for the current element for a give variable
+    Grab all of the DoF indices for the current element for a given variable
 """
 function connectedDofIndices(elem::Element, var::Variable)
     [ node.dofs[var.id] for node in elem.nodes ]
