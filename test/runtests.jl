@@ -1,6 +1,8 @@
 
 using MPI
 
+MPI.Init()
+
 using JuAFEM
 using MOOSE
 
@@ -35,3 +37,5 @@ if MPI.Comm_size(MPI.COMM_WORLD) == 2
     include("test_parallel_Mesh.jl")
     include("test_parallel_System.jl")
 end
+
+MPI.Finalize()
