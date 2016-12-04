@@ -16,11 +16,15 @@
 
     MOOSE.initialize!(sys)
 
+    MOOSE.findGhostedDofs!(sys)
+
     @test sys.n_dofs == length(mesh.nodes) * length(sys.variables)
 
     if MPI.Comm_size(MPI.COMM_WORLD) == 2
         if MPI.Comm_rank(MPI.COMM_WORLD) == 0
             @test sys.local_n_dofs == 12
+
+            @test sys.ghosted_dofs == Set{Int64}()
 
             @test mesh.nodes[1].dofs == [1,2]
             @test mesh.nodes[3].dofs == [9,10]
@@ -42,6 +46,8 @@
         end
 
         if MPI.Comm_rank(MPI.COMM_WORLD) == 1
+            @test sys.ghosted_dofs == Set{Int64}([7,11,8,5,6,12])
+
             @test sys.local_n_dofs == 6
 
             @test sys.first_local_dof == 13

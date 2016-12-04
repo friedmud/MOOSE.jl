@@ -36,6 +36,9 @@ type System{T}
     " The last DOF on this processor "
     last_local_dof::Int64
 
+    " A list of DoFs that need to be ghosted to this processor.  These are DoFs which are off-processor, but we need their values for Assembly. "
+    ghosted_dofs::Set{Int64}
+
     " Whether or not initialize!() has been called for this System "
     initialized::Bool
 
@@ -57,6 +60,7 @@ type System{T}
                                   0,
                                   0,
                                   0,
+                                  Set{Int64}(),
                                   false,
                                   QuadratureRule{2,RefCube}(:legendre, 2),
                                   Lagrange{2, RefCube, 1}()) ;
@@ -100,7 +104,7 @@ function distributeDofs(sys::System)
     # To do that, we're going to find the total number of DoFs on each processor and communicate
     # that into a vector on every processor.  Next, we'll compute the cumsum of that vector.
     # That cumsum will give us the starting DoF ID for each processor (if we add 1 to it)
-    # With one small change the first processor needs to start at 1...
+    # with one small change: the first processor needs to start at 1...
     # and the final entry in the cumsum is useless
     # So we'll do a little vector manipulation to fix that up.
     #
@@ -156,6 +160,33 @@ function distributeDofs(sys::System)
 
     # Save off the total number of DoFs distributed
     sys.n_dofs = sum(dofs_per_proc)
+end
+
+"""
+    Find all of the off-processor DoFs that we will need for Assembly
+"""
+function findGhostedDofs!(sys::System)
+    # Basic plan:
+    # 1. Loop over local elements
+    # 2. Interrogate nodes connected to those elems...
+    # 3. If they are off-processor then ghost their dofs
+
+    # Note!  This doesn't create any sort of "halo"...
+    # it just barely gets the info we need for Lagrange FE Assembly
+    # A lot more could be done here
+
+    proc_id = MPI.Comm_rank(MPI.COMM_WORLD)
+
+    for elem in sys.mesh.local_elements
+        for node in elem.nodes
+            if node.processor_id != proc_id
+                dofs = node.dofs
+                for dof in node.dofs
+                    push!(sys.ghosted_dofs, dof)
+                end
+            end
+        end
+    end
 end
 
 """

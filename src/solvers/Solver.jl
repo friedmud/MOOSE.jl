@@ -33,6 +33,9 @@ abstract DenseImplicitSolver <: ImplicitSolver
     # " The solution vector "
     # solution::Vector{Float64}
 
+    # " The ghosted solution vector (for Assembly) "
+    # ghosted_solution::Vector{Float64}
+
     # " Whether or not this Solver has been initialized "
     # initialized::Bool
 
@@ -45,6 +48,12 @@ function initialize!(solver::DenseImplicitSolver)
     solver.mat = zeros(Float64, n_dofs, n_dofs)
     solver.rhs = zeros(Float64, n_dofs)
     solver.solution = zeros(Float64, n_dofs)
+    solver.ghosted_solution = zeros(Float64, n_dofs)
 
     solver.initialized = true
+end
+
+" Update the ghosted_solution vector from the actual solution "
+function updateGhostedSolution!(solver::DenseImplicitSolver)
+    solution.ghosted_solution = solver.solution
 end

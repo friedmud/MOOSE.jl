@@ -9,7 +9,9 @@ convert{N,T}(Float64, x::Dual{N,T}) = value(x)
 function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
     mesh = sys.mesh
 
-    solution = solver.solution
+    updateGhostedSolution!(solver)
+
+    solution = solver.ghosted_solution
 
     vars = sys.variables
     n_vars = length(vars)
@@ -33,7 +35,7 @@ function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
     end
 
     # Execute the element loop and accumulate Kernel contributions
-    for elem in mesh.elements
+    for elem in mesh.local_elements
         reinit!(sys, elem, solution)
 
         # Resize and zero residual vectors and jacobian matrices
@@ -86,6 +88,8 @@ function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
 
     entries_in_bc_rows= []
 
+    proc_id = MPI.Comm_rank(MPI.COMM_WORLD)
+
     # Now go over each nodeset and apply the BCs
     for bid in bids
 
@@ -94,23 +98,25 @@ function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
 
         # Iterate over each node and apply the boundary conditions
         for node in node_list
-            reinit!(sys, node, solution)
+            if node.processor_id == proc_id
+                reinit!(sys, node, solution)
 
-            # Apply all of the BCs that should be applied here
-            for bc in bcs
-                if bid in bc.bids
-                    computeResidualAndJacobian!(temp_residual, temp_jacobian, vars, bc)
+                # Apply all of the BCs that should be applied here
+                for bc in bcs
+                    if bid in bc.bids
+                        computeResidualAndJacobian!(temp_residual, temp_jacobian, vars, bc)
 
-                    # First set the residual
-                    solver.rhs[bc.u.nodal_dof] = temp_residual[1]
+                        # First set the residual
+                        solver.rhs[bc.u.nodal_dof] = temp_residual[1]
 
-                    # Now - we need to zero out the row in the matrix corresponding to this dof
-                    push!(rows_to_zero, bc.u.nodal_dof)
+                        # Now - we need to zero out the row in the matrix corresponding to this dof
+                        push!(rows_to_zero, bc.u.nodal_dof)
 
-                    # And put this piece in place
-                    for v in vars
-                        #solver.mat[bc.u.nodal_dof,v.nodal_dof] = temp_jacobian[v.id]
-                        push!(entries_in_bc_rows, (bc.u.nodal_dof,v.nodal_dof,temp_jacobian[v.id]))
+                        # And put this piece in place
+                        for v in vars
+                            #solver.mat[bc.u.nodal_dof,v.nodal_dof] = temp_jacobian[v.id]
+                            push!(entries_in_bc_rows, (bc.u.nodal_dof,v.nodal_dof,temp_jacobian[v.id]))
+                        end
                     end
                 end
             end

@@ -15,6 +15,9 @@ type PetscImplicitSolver <: DenseImplicitSolver
     " Whether or not this Solver has been initialized "
     initialized::Bool
 
+    " The ghosted solution vector.  This is last because we're going to leave it unitialized in the beginning. "
+    ghosted_solution::GhostedPetscVec
+
     PetscImplicitSolver(system::System) = new(system, PetscMat(), PetscVec(), PetscVec(), false)
 end
 
@@ -25,14 +28,25 @@ function initialize!(solver::PetscImplicitSolver)
 
     n_dofs = solver.system.n_dofs
 
+    local_n_dofs = solver.system.local_n_dofs
 
-    setSize!(solver.mat, m_local=(Int32)(n_dofs), n_local=(Int32)(n_dofs))
-    setPreallocation!(solver.mat, (Int32)[9 for i in 1:n_dofs], (Int32)[0 for i in 1:n_dofs])
+    println(local_n_dofs)
 
-    setSize!(solver.rhs, n_local=(Int32)(n_dofs))
-    setSize!(solver.solution, n_local=(Int32)(n_dofs))
+    setSize!(solver.mat, m_local=(Int32)(local_n_dofs), n_local=(Int32)(local_n_dofs))
+    setPreallocation!(solver.mat, (Int32)[local_n_dofs for i in 1:local_n_dofs], (Int32)[local_n_dofs for i in 1:local_n_dofs])
+
+    setSize!(solver.rhs, n_local=(Int32)(local_n_dofs))
+    setSize!(solver.solution, n_local=(Int32)(local_n_dofs))
+
+    findGhostedDofs!(solver.system)
+    solver.ghosted_solution = GhostedPetscVec(Int32[(Int32)(dof) for dof in solver.system.ghosted_dofs], n_local=(Int32)(local_n_dofs))
 
     solver.initialized = true
+end
+
+" Update the ghosted_solution vector from the actual solution "
+function updateGhostedSolution!(solver::PetscImplicitSolver)
+    copy!(solver.ghosted_solution, solver.solution)
 end
 
 """
