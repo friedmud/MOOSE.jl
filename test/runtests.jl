@@ -38,4 +38,6 @@ if MPI.Comm_size(MPI.COMM_WORLD) == 2
     include("test_parallel_System.jl")
 end
 
+include("test_MetisPartitioner.jl")
+
 MPI.Finalize()

@@ -6,7 +6,7 @@ using MOOSE
 
 function doIt()
     # Create the Mesh
-    mesh = buildSquare(0, 1, 0, 1, 500, 500)
+    mesh = buildSquare(0, 1, 0, 1, 1000, 1000)
 
     # Create the System to hold the equations
     diffusion_system = System{Float64}(mesh)

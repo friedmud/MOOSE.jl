@@ -42,7 +42,11 @@ end
 function initialize!(mesh::Mesh)
     buildNodeToElemMap!(mesh)
 
-    partition!(mesh, SimplePartitioner)
+    if MPI.Comm_size(MPI.COMM_WORLD) <= 2
+        partition!(mesh, SimplePartitioner)
+    else
+        partition!(mesh, MetisPartitioner)
+    end
 
     buildNodeAndElemLists(mesh)
 end
