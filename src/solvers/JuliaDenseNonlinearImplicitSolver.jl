@@ -12,10 +12,13 @@ type JuliaDenseNonlinearImplicitSolver <: DenseImplicitSolver
     " The current solution vector "
     solution::Vector{Float64}
 
+    " The ghosted solution vector (for Assembly) "
+    ghosted_solution::Vector{Float64}
+
     " Whether or not this Solver has been initialized "
     initialized::Bool
 
-    JuliaDenseNonlinearImplicitSolver(system::System) = new(system, Matrix{Float64}(), Vector{Float64}(), Vector{Float64}(), false)
+    JuliaDenseNonlinearImplicitSolver(system::System) = new(system, Matrix{Float64}(), Vector{Float64}(), Vector{Float64}(), Vector{Float64}(), false)
 end
 
 """

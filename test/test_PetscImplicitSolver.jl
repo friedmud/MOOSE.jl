@@ -1,54 +1,54 @@
 using MiniPETSc
 
-# @testset "PIS" begin
-#     mesh = buildSquare(0,1,0,1,2,2)
+@testset "PIS" begin
+    mesh = buildSquare(0,1,0,1,2,2)
 
-#     sys = System{Float64}(mesh)
+    sys = System{Float64}(mesh)
 
-#     dog = addVariable!(sys, "dog")
-#     cat = addVariable!(sys, "cat")
+    dog = addVariable!(sys, "dog")
+    cat = addVariable!(sys, "cat")
 
-#     initialize!(sys)
+    initialize!(sys)
 
-#     pis = PetscImplicitSolver(sys)
+    pis = PetscImplicitSolver(sys)
 
-#     # Make sure it's not iniitialized by default
-#     @test !pis.initialized
+    # Make sure it's not iniitialized by default
+    @test !pis.initialized
 
-#     initialize!(pis)
+    initialize!(pis)
 
-#     # Now it should be
-#     @test pis.initialized
+    # Now it should be
+    @test pis.initialized
 
-#     n_dofs = sys.n_dofs
+    n_dofs = sys.n_dofs
 
-#     @test size(pis.mat) == (n_dofs, n_dofs)
-#     @test length(pis.rhs) == n_dofs
-#     @test length(pis.solution) == n_dofs
+    @test size(pis.mat) == (n_dofs, n_dofs)
+    @test length(pis.rhs) == n_dofs
+    @test length(pis.solution) == n_dofs
 
-#     # Put something in the matrix so we can do a solve
-#     # Just make it an identity matrix
-#     # Note: we actually want to fill the matrix with identity values
-#     #   not replace it with an identity matrix
-#     for i in 1:n_dofs
-#         pis.mat[i,i] = 1
-#     end
+    # Put something in the matrix so we can do a solve
+    # Just make it an identity matrix
+    # Note: we actually want to fill the matrix with identity values
+    #   not replace it with an identity matrix
+    for i in 1:n_dofs
+        pis.mat[i,i] = 1
+    end
 
-#     for i in 1:n_dofs
-#         pis.rhs[i] = i
-#     end
+    for i in 1:n_dofs
+        pis.rhs[i] = i
+    end
 
-#     MiniPETSc.assemble!(pis.mat)
-#     MiniPETSc.assemble!(pis.rhs)
+    MiniPETSc.assemble!(pis.mat)
+    MiniPETSc.assemble!(pis.rhs)
 
-#     # Now solve:
-#     solve!(pis, assemble=false)
+    # Now solve:
+    solve!(pis, assemble=false)
 
-#     # Should be the case!
-#     for i in 1:length(pis.solution)
-#         @test abs(pis.solution[i] - pis.rhs[i]) < 1e-9
-#     end
-# end
+    # Should be the case!
+    for i in 1:length(pis.solution)
+        @test abs(pis.solution[i] - pis.rhs[i]) < 1e-9
+    end
+end
 
 function testFullSolvePIS(diffusion_system)
     u = addVariable!(diffusion_system, "u")
@@ -68,10 +68,11 @@ function testFullSolvePIS(diffusion_system)
 
     solve!(solver)
 
-    viewVec(solver.solution)
-#    for i in 1:length(solver.solution)
-#        @test abs(solver.solution[i] - [0.0, 0.5, 0.5, 0.0, 1.0, 1.0, 0.5, 0.0, 1.0][i]) < 1e-9
-#    end
+    solution = serializeToZero(solver.solution)
+
+    for i in 1:length(solution)
+        @test abs(solver.solution[i] - [0.0, 0.5, 0.5, 0.0, 1.0, 1.0, 0.5, 0.0, 1.0][i]) < 1e-9
+    end
 end
 
 # Test a 'Full Solve' using PIS
@@ -83,11 +84,11 @@ end
     testFullSolvePIS(diffusion_system)
 end
 
-# # Test a 'Full Solve' using PIS and Automatic Differentiation
-# @testset "PISFD" begin
-#     mesh = buildSquare(0, 1, 0, 1, 2, 2)
+# Test a 'Full Solve' using PIS and Automatic Differentiation
+@testset "PISFD" begin
+    mesh = buildSquare(0, 1, 0, 1, 2, 2)
 
-#     diffusion_system = System{Dual{4, Float64}}(mesh)
+    diffusion_system = System{Dual{4, Float64}}(mesh)
 
-#     testFullSolvePIS(diffusion_system)
-# end
+    testFullSolvePIS(diffusion_system)
+end

@@ -55,5 +55,5 @@ end
 
 " Update the ghosted_solution vector from the actual solution "
 function updateGhostedSolution!(solver::DenseImplicitSolver)
-    solution.ghosted_solution = solver.solution
+    solver.ghosted_solution = solver.solution
 end

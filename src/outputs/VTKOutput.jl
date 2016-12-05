@@ -39,11 +39,10 @@ end
 
     returns a Dict{VariableName, Array{Float64}}
 """
-function createPointData(solver::Solver)
+function createPointData(solver::Solver, solution::Array)
     # One entry per variable
     point_data = Dict{String, Array{Float64}}()
 
-    solution = solver.solution
     sys = solver.system
     mesh = sys.mesh
     nodes = mesh.nodes
@@ -65,15 +64,19 @@ end
 
 " Write out a VTK file "
 function output(out::VTKOutput, solver::Solver, filebase::String)
-    cells, points = createVTKGeometry(solver.system.mesh)
+    serialized_solution = serializeToZero(solver.solution)
 
-    vtkfile = vtk_grid(filebase, points, cells)
+    if MPI.Comm_rank(MPI.COMM_WORLD) == 0
+        cells, points = createVTKGeometry(solver.system.mesh)
 
-    point_data = createPointData(solver)
+        vtkfile = vtk_grid(filebase, points, cells)
 
-    for name_data in point_data
-        vtk_point_data(vtkfile, name_data[2], name_data[1])
+        point_data = createPointData(solver, serialized_solution)
+
+        for name_data in point_data
+            vtk_point_data(vtkfile, name_data[2], name_data[1])
+        end
+
+        outfiles = vtk_save(vtkfile)
     end
-
-    outfiles = vtk_save(vtkfile)
 end

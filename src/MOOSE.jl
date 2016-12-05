@@ -20,6 +20,7 @@ import MiniPETSc.solve!
 import MiniPETSc.zero!
 import MiniPETSc.plusEquals!
 import MiniPETSc.zeroRows!
+import MiniPETSc.serializeToZero
 
 export dofs, processor_id
 

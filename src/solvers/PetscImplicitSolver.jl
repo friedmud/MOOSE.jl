@@ -30,10 +30,8 @@ function initialize!(solver::PetscImplicitSolver)
 
     local_n_dofs = solver.system.local_n_dofs
 
-    println(local_n_dofs)
-
     setSize!(solver.mat, m_local=(Int32)(local_n_dofs), n_local=(Int32)(local_n_dofs))
-    setPreallocation!(solver.mat, (Int32)[local_n_dofs for i in 1:local_n_dofs], (Int32)[local_n_dofs for i in 1:local_n_dofs])
+    setPreallocation!(solver.mat, (Int32)[local_n_dofs for i in 1:local_n_dofs], (Int32)[9 for i in 1:local_n_dofs])
 
     setSize!(solver.rhs, n_local=(Int32)(local_n_dofs))
     setSize!(solver.solution, n_local=(Int32)(local_n_dofs))

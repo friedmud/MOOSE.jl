@@ -35,3 +35,10 @@ end
 """
 function assemble!(::Any)
 end
+
+"""
+    Pass through
+"""
+function serializeToZero(array::Array)
+    return array
+end

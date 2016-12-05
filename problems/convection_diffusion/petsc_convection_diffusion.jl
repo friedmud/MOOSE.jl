@@ -1,3 +1,7 @@
+using MPI
+
+MPI.Init()
+
 using MOOSE
 
 # Create the Mesh
@@ -13,7 +17,7 @@ u = addVariable!(diffusion_system, "u")
 addKernel!(diffusion_system, Diffusion(u))
 
 # Add in a Convection operator with a velocity vector
-addKernel!(diffusion_system, Convection(u, Vec{2}((10.,0.))))
+addKernel!(diffusion_system, Convection(u, ContMechTensors.Vec{2}((10.,0.))))
 
 # u = 0 on the Left
 addBC!(diffusion_system, DirichletBC(u, [4], 0.0))
@@ -31,3 +35,5 @@ solve!(solver)
 # Output
 out = VTKOutput()
 output(out, solver, "convection_diffusion_out")
+
+MPI.Finalize()
