@@ -51,6 +51,12 @@ type System{T}
     " The Current FEValues "
     fe_values::FECellValues
 
+    " Number of local dofs connected to each local dof.  Must call `generateSparsity!()` to fill "
+    local_dof_sparsity::Array{Int32}
+
+    " Number of non-local dofs connected to each local dof. Must call `generateSparsity!()` to fill "
+    off_proc_dof_sparsity::Array{Int32}
+
     " A Mesh must be provided "
     System(mesh::Mesh) = (x = new(mesh,
                                   Array{Variable}(0),
@@ -187,6 +193,64 @@ function findGhostedDofs!(sys::System)
             end
         end
     end
+end
+
+"""
+    PRIVATE: Helper function
+"""
+function _addDofs!(sys::System, original_node::Node, other_node::Node, local_dofs::Array, off_proc_dofs::Array)
+    for dof in original_node.dofs
+        local_dof = (dof - sys.first_local_dof) + 1
+
+        for other_dof in other_node.dofs
+            if sys.first_local_dof <= other_dof && other_dof <= sys.last_local_dof
+                local_dofs[local_dof] += 1
+            else
+                off_proc_dofs[local_dof] += 1
+            end
+        end
+    end
+end
+
+"""
+    Generate Sparsity information
+"""
+function generateSparsity!(sys::System)
+    # Basic plan:
+    # 1. Loop over local nodes
+    # 2. Add up local dofs on each node as local nonzeros
+    # 3. Use node_to_elem_map to get all elems connected to the node
+    # 4. Go over nodes connected to those elements and add up the number of local and off-processor dofs
+
+    proc_id = MPI.Comm_rank(MPI.COMM_WORLD)
+
+    local_dofs = Array{Int32}(sys.local_n_dofs)
+    fill!(local_dofs, 0)
+    off_proc_dofs = Array{Int32}(sys.local_n_dofs)
+    fill!(off_proc_dofs, 0)
+
+    for node in sys.mesh.local_nodes
+        # Couple all of the dofs on this node to eachother
+        _addDofs!(sys, node, node, local_dofs, off_proc_dofs)
+
+        connected_elems = sys.mesh.node_to_elem_map[node.id]
+
+        visited_nodes = Set{Int64}()
+
+        push!(visited_nodes, node.id)
+
+        for elem in connected_elems
+            for other_node in elem.nodes
+                if !(other_node.id in visited_nodes)
+                    _addDofs!(sys, node, other_node, local_dofs, off_proc_dofs)
+                    push!(visited_nodes, other_node.id)
+                end
+            end
+        end
+    end
+
+    sys.local_dof_sparsity = local_dofs
+    sys.off_proc_dof_sparsity = off_proc_dofs
 end
 
 """

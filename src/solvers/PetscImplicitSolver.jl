@@ -31,7 +31,8 @@ function initialize!(solver::PetscImplicitSolver)
     local_n_dofs = solver.system.local_n_dofs
 
     setSize!(solver.mat, m_local=(Int32)(local_n_dofs), n_local=(Int32)(local_n_dofs))
-    setPreallocation!(solver.mat, (Int32)[local_n_dofs for i in 1:local_n_dofs], (Int32)[9 for i in 1:local_n_dofs])
+    generateSparsity!(solver.system)
+    setPreallocation!(solver.mat, solver.system.local_dof_sparsity, solver.system.off_proc_dof_sparsity)
 
     setSize!(solver.rhs, n_local=(Int32)(local_n_dofs))
     setSize!(solver.solution, n_local=(Int32)(local_n_dofs))
@@ -58,7 +59,11 @@ function solve!(solver::PetscImplicitSolver; assemble=true)
     end
 
     if assemble
-        assembleResidualAndJacobian(solver, solver.system)
+        if MPI.Comm_rank(MPI.COMM_WORLD) == 0
+            @time assembleResidualAndJacobian(solver, solver.system)
+        else
+            assembleResidualAndJacobian(solver, solver.system)
+        end
     end
 
     assemble!(solver.solution)
@@ -67,5 +72,9 @@ function solve!(solver::PetscImplicitSolver; assemble=true)
     ksp = PetscKSP()
     setOperators(ksp, solver.mat)
     scale!(solver.rhs, -1.0)
-    solve!(ksp, solver.rhs, solver.solution)
+    if MPI.Comm_rank(MPI.COMM_WORLD) == 0
+        @time solve!(ksp, solver.rhs, solver.solution)
+    else
+        solve!(ksp, solver.rhs, solver.solution)
+    end
 end
