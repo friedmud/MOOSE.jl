@@ -2,8 +2,6 @@ __precompile__()
 
 module MOOSE
 
-using MPI
-
 using ContMechTensors
 
 using WriteVTK

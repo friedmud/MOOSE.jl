@@ -1,8 +1,3 @@
-
-using MPI
-
-MPI.Init()
-
 using JuAFEM
 using MOOSE
 
@@ -39,5 +34,3 @@ if MPI.Comm_size(MPI.COMM_WORLD) == 2
 end
 
 include("test_MetisPartitioner.jl")
-
-MPI.Finalize()

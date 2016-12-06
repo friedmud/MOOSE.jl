@@ -1,12 +1,8 @@
-using MPI
-
-MPI.Init()
-
 using MOOSE
 
 function doIt()
     # Create the Mesh
-    mesh = buildSquare(0, 1, 0, 1, 1000, 1000)
+    mesh = buildSquare(0, 1, 0, 1, 10, 10)
 
     # Create the System to hold the equations
     diffusion_system = System{Float64}(mesh)
@@ -40,5 +36,3 @@ end
 
 doIt()
 doIt()
-
-MPI.Finalize()
