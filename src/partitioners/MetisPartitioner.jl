@@ -8,7 +8,7 @@
 """
 abstract MetisPartitioner <: Partitioner
 
-const metis_library = "/opt/moose/petsc/mpich_petsc-3.6.1/clang-opt-superlu/lib/libpetsc"
+const metis_library = string(ENV["PETSC_DIR"],"/lib/libmetis")
 
 const METIS_NOPTIONS = 40
 typealias idx_t Int32
@@ -55,7 +55,7 @@ function partition!(mesh::Mesh, ::Type{MetisPartitioner})
 
     options = Array{idx_t}(METIS_NOPTIONS)
 
-    ccall((:METIS_SetDefaultOptions), Int32, (Ref{idx_t},), options)
+    ccall((:METIS_SetDefaultOptions, metis_library), Int32, (Ref{idx_t},), options)
 
 #    options[METIS_OPTION_NUMBERING] = 1 # 1-based numbering! Handy!  Well... I ended up doing 0-based because debugging (and the answer needs to be zero based anyway because MPI is)
 
