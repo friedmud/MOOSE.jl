@@ -11,7 +11,9 @@ using ForwardDiff
 using ForwardDiff: Partials, Dual, value, partials, npartials, setindex, convert
 export Dual
 
-using MiniPETSc
+using Reexport
+
+@reexport using MiniPETSc
 
 import MiniPETSc.assemble!
 import MiniPETSc.solve!
@@ -46,6 +48,16 @@ value_type = Float64
 dualVariable{T}(value::T, index::Int64, num_partials::Int64) = Dual(value, Partials(ntuple(n -> n != index ? zero(Float64) : 1.0, num_partials)))
 
 const invalid_processor_id = -1
+
+include("utils/PerfLog.jl")
+
+export PerfLog, startLog, stopLog, clear!
+
+main_perf_log = PerfLog()
+
+function __init__()
+    atexit(() -> println(main_perf_log))
+end
 
 include("numerics/JuliaSupport.jl")
 include("mesh/DofObject.jl")

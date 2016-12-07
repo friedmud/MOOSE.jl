@@ -7,6 +7,8 @@ convert{N,T}(Float64, x::Dual{N,T}) = value(x)
     Assemble Jacobian and Residual
 """
 function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
+    startLog(main_perf_log, "assembleResidualAndJacobian()")
+
     mesh = sys.mesh
 
     updateGhostedSolution!(solver)
@@ -132,4 +134,6 @@ function assembleResidualAndJacobian{T}(solver::Solver, sys::System{T})
 
     assemble!(solver.mat)
     assemble!(solver.rhs)
+
+    stopLog(main_perf_log, "assembleResidualAndJacobian()")
 end

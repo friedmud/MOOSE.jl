@@ -54,13 +54,15 @@ end
     `assemble` controls whether or not the system will be assembled automatically
 """
 function solve!(solver::PetscImplicitSolver; assemble=true)
+    startLog(main_perf_log, "solve()")
+
     if !solver.initialized
         initialize!(solver)
     end
 
     if assemble
         if MPI.Comm_rank(MPI.COMM_WORLD) == 0
-            @time assembleResidualAndJacobian(solver, solver.system)
+            assembleResidualAndJacobian(solver, solver.system)
         else
             assembleResidualAndJacobian(solver, solver.system)
         end
@@ -72,9 +74,13 @@ function solve!(solver::PetscImplicitSolver; assemble=true)
     ksp = PetscKSP()
     setOperators(ksp, solver.mat)
     scale!(solver.rhs, -1.0)
+    startLog(main_perf_log, "linear_solve")
     if MPI.Comm_rank(MPI.COMM_WORLD) == 0
-        @time solve!(ksp, solver.rhs, solver.solution)
+        solve!(ksp, solver.rhs, solver.solution)
     else
         solve!(ksp, solver.rhs, solver.solution)
     end
+    stopLog(main_perf_log, "linear_solve")
+
+    stopLog(main_perf_log, "solve()")
 end

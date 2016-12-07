@@ -26,6 +26,7 @@ if MPI.Comm_size(MPI.COMM_WORLD) == 1
 
     include("test_PetscImplicitSolver.jl")
     include("test_Mesh.jl")
+    include("test_PerfLog.jl")
 end
 
 if MPI.Comm_size(MPI.COMM_WORLD) == 2
