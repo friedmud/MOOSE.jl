@@ -1,5 +1,7 @@
 "Create a 2D square using Quad4 elements."
 function buildSquare(xmin::Real, xmax::Real, ymin::Real, ymax::Real, n_elems_x::Integer, n_elems_y::Integer)
+    startLog(main_perf_log, "buildSquare()")
+
     # Create the Mesh
     mesh = Mesh()
 
@@ -120,6 +122,8 @@ function buildSquare(xmin::Real, xmax::Real, ymin::Real, ymax::Real, n_elems_x::
     mesh.nodes = nodes
 
     initialize!(mesh)
+
+    stopLog(main_perf_log, "buildSquare()")
 
     return mesh
 end

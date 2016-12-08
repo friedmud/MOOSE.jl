@@ -51,9 +51,11 @@ const invalid_processor_id = -1
 
 include("utils/PerfLog.jl")
 
-export PerfLog, startLog, stopLog, clear!
+export PerfLog, startRootLog!, stopRootLog!, startLog, stopLog, clear!
 
 main_perf_log = PerfLog()
+
+export main_perf_log
 
 function __init__()
     atexit(() -> println(main_perf_log))

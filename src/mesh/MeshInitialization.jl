@@ -2,6 +2,7 @@
     Build a map of node IDs to elements
 """
 function buildNodeToElemMap!(mesh::Mesh)
+    startLog(main_perf_log, "buildNodeToElemMap!()")
 
     node_to_elem_map = mesh.node_to_elem_map
 
@@ -14,12 +15,16 @@ function buildNodeToElemMap!(mesh::Mesh)
             push!(node_to_elem_map[node.id], elem)
         end
     end
+
+    stopLog(main_perf_log, "buildNodeToElemMap!()")
 end
 
 """
     Build lists of local elements and nodes
 """
-function buildNodeAndElemLists(mesh::Mesh)
+function buildNodeAndElemLists!(mesh::Mesh)
+    startLog(main_perf_log, "buildNodeAndElemLists!()")
+
     proc_id = MPI.Comm_rank(MPI.COMM_WORLD)
 
     for elem in mesh.elements
@@ -33,6 +38,8 @@ function buildNodeAndElemLists(mesh::Mesh)
             push!(mesh.local_nodes, node)
         end
     end
+
+    stopLog(main_perf_log, "buildNodeAndElemLists!()")
 end
 
 """
@@ -40,6 +47,8 @@ end
     Partitions the mesh and assigns processor IDs
 """
 function initialize!(mesh::Mesh)
+    startLog(main_perf_log, "initialize!()")
+
     buildNodeToElemMap!(mesh)
 
     if MPI.Comm_size(MPI.COMM_WORLD) <= 2
@@ -48,5 +57,7 @@ function initialize!(mesh::Mesh)
         partition!(mesh, MetisPartitioner)
     end
 
-    buildNodeAndElemLists(mesh)
+    buildNodeAndElemLists!(mesh)
+
+    stopLog(main_perf_log, "initialize!()")
 end

@@ -64,6 +64,8 @@ end
 
 " Write out a VTK file "
 function output(out::VTKOutput, solver::Solver, filebase::String)
+    startLog(main_perf_log, "output(VTKOutput)")
+
     serialized_solution = serializeToZero(solver.solution)
 
     if MPI.Comm_rank(MPI.COMM_WORLD) == 0
@@ -79,4 +81,6 @@ function output(out::VTKOutput, solver::Solver, filebase::String)
 
         outfiles = vtk_save(vtkfile)
     end
+
+    stopLog(main_perf_log, "output(VTKOutput)")
 end

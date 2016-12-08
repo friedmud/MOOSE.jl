@@ -98,6 +98,8 @@ end
 
 " Distribute the DoFs to the DofObjects "
 function distributeDofs(sys::System)
+    startLog(main_perf_log, "distributeDofs()")
+
     # These will be "node major"
     n_vars = length(sys.variables)
 
@@ -166,6 +168,8 @@ function distributeDofs(sys::System)
 
     # Save off the total number of DoFs distributed
     sys.n_dofs = sum(dofs_per_proc)
+
+    stopLog(main_perf_log, "distributeDofs()")
 end
 
 """
@@ -216,6 +220,8 @@ end
     Generate Sparsity information
 """
 function generateSparsity!(sys::System)
+    startLog(main_perf_log, "generateSparsity!()")
+
     # Basic plan:
     # 1. Loop over local nodes
     # 2. Add up local dofs on each node as local nonzeros
@@ -251,6 +257,8 @@ function generateSparsity!(sys::System)
 
     sys.local_dof_sparsity = local_dofs
     sys.off_proc_dof_sparsity = off_proc_dofs
+
+    stopLog(main_perf_log, "generateSparsity!()")
 end
 
 """
@@ -260,10 +268,14 @@ end
     The main purpose of this function is to distribute the DoFs across the mesh.
 """
 function initialize!(sys::System)
+    startLog(main_perf_log, "initialize!(System)")
+
     distributeDofs(sys)
 
     # Set a flag that this System is initialized
     sys.initialized = true
+
+    stopLog(main_perf_log, "initialize!(System)")
 end
 
 """

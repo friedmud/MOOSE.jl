@@ -18,7 +18,7 @@ type PetscImplicitSolver <: DenseImplicitSolver
     " The ghosted solution vector.  This is last because we're going to leave it unitialized in the beginning. "
     ghosted_solution::GhostedPetscVec
 
-    PetscImplicitSolver(system::System) = new(system, PetscMat(), PetscVec(), PetscVec(), false)
+    PetscImplicitSolver(system::System) = new(system, PetscMat(), PetscVec("rhs"), PetscVec("solution"), false)
 end
 
 
