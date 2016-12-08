@@ -67,6 +67,10 @@ end
     Start logging for a particular log_entry name
 """
 function startLog(perf_log::PerfLog, log_entry::String)
+    if !perf_log.root_started
+        startRootLog!(perf_log)
+    end
+
     current_timing_entries = perf_log.timing_queue[end].sub_timing_entries
 
     if !(log_entry in keys(current_timing_entries))
@@ -106,6 +110,10 @@ end
 function show(io::IO, perf_log::PerfLog)
     if MPI.Comm_rank(MPI.COMM_WORLD) != 0
         return
+    end
+
+    if perf_log.root_started
+        stopRootLog!(perf_log)
     end
 
     println("Timing:")
