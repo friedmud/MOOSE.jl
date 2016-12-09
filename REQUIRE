@@ -4,4 +4,3 @@ JuAFEM
 MeshIO
 WriteVTK
 ForwardDiff
-MiniPETSc
