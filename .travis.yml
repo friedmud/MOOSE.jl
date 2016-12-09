@@ -13,7 +13,7 @@ before_script:
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
   - julia -e 'Pkg.clone("https://github.com/KristofferC/ContMechTensors.jl")'
-  - julia -e 'Pkg.clone("https://github.com/KristofferC/JuAFEM.jl")'
+  - julia -e 'Pkg.clone("https://github.com/friedmud/JuAFEM.jl.git")'
 #  - julia -e 'Pkg.clone("https://github.com/friedmud/MiniPETSc.jl.git")'
   - julia -e 'Pkg.clone("https://github.com/friedmud/DummyMPI.jl.git")'
   - julia -e 'Pkg.clone(pwd()); Pkg.test("MOOSE"; coverage=true)'

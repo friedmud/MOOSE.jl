@@ -16,7 +16,7 @@ To get all of the dependencies and MOOSE.jl... within a Julia 0.5 session do:
 
 ```julia
 Pkg.clone("https://github.com/KristofferC/ContMechTensors.jl.git")
-Pkg.clone("https://github.com/KristofferC/JuAFEM.jl")
+Pkg.clone("https://github.com/friedmud/JuAFEM.jl.git")
 Pkg.clone("https://github.com/friedmud/DummyMPI.jl.git")
 Pkg.clone("https://github.com/friedmud/MiniPETSc.jl.git")
 Pkg.clone("https://github.com/friedmud/MOOSE.jl.git")
