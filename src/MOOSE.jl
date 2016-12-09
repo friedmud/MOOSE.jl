@@ -13,14 +13,20 @@ export Dual
 
 using Reexport
 
-@reexport using MiniPETSc
+const have_petsc = "PETSC_DIR" in keys(ENV)
 
-import MiniPETSc.assemble!
-import MiniPETSc.solve!
-import MiniPETSc.zero!
-import MiniPETSc.plusEquals!
-import MiniPETSc.zeroRows!
-import MiniPETSc.serializeToZero
+if have_petsc
+    @reexport using MiniPETSc
+
+    import MiniPETSc.assemble!
+    import MiniPETSc.solve!
+    import MiniPETSc.zero!
+    import MiniPETSc.plusEquals!
+    import MiniPETSc.zeroRows!
+    import MiniPETSc.serializeToZero
+else
+    @reexport using MPI
+end
 
 export dofs, processor_id
 
@@ -30,7 +36,11 @@ export buildSquare
 
 export Variable, System, addVariable!, addKernel!, addBC!, initialize!
 
-export Solver, solve!, JuliaDenseImplicitSolver, JuliaDenseNonlinearImplicitSolver, PetscImplicitSolver
+export Solver, solve!, JuliaDenseImplicitSolver, JuliaDenseNonlinearImplicitSolver
+
+if have_petsc
+    export PetscImplicitSolver
+end
 
 export Kernel, Diffusion, Convection
 
@@ -57,8 +67,20 @@ main_perf_log = PerfLog()
 
 export main_perf_log
 
+function finalize()
+    println(main_perf_log)
+
+    if !have_petsc
+        MPI.Finalize()
+    end
+end
+
 function __init__()
-    atexit(() -> println(main_perf_log))
+    if !have_petsc
+        MPI.Init()
+    end
+
+    atexit(finalize)
 end
 
 include("numerics/JuliaSupport.jl")
@@ -70,7 +92,11 @@ include("mesh/Mesh.jl")
 include("mesh/Generation.jl")
 include("partitioners/Partitioner.jl")
 include("partitioners/SimplePartitioner.jl")
-include("partitioners/MetisPartitioner.jl")
+
+if have_petsc
+    include("partitioners/MetisPartitioner.jl")
+end
+
 include("mesh/MeshInitialization.jl")
 include("systems/Variable.jl")
 include("kernels/Kernel.jl")
@@ -82,7 +108,10 @@ include("outputs/Output.jl")
 
 include("solvers/JuliaDenseImplicitSolver.jl")
 include("solvers/JuliaDenseNonlinearImplicitSolver.jl")
-include("solvers/PetscImplicitSolver.jl")
+
+if have_petsc
+    include("solvers/PetscImplicitSolver.jl")
+end
 
 include("kernels/Diffusion.jl")
 include("kernels/Convection.jl")

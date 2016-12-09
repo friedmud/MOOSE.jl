@@ -24,7 +24,10 @@ if MPI.Comm_size(MPI.COMM_WORLD) == 1
 
     include("test_JuliaDenseImplicitSolver.jl")
 
-    include("test_PetscImplicitSolver.jl")
+    if MOOSE.have_petsc
+       include("test_PetscImplicitSolver.jl")
+    end
+
     include("test_Mesh.jl")
     include("test_PerfLog.jl")
 end
@@ -34,4 +37,6 @@ if MPI.Comm_size(MPI.COMM_WORLD) == 2
     include("test_parallel_System.jl")
 end
 
-include("test_MetisPartitioner.jl")
+if MOOSE.have_petsc
+   include("test_MetisPartitioner.jl")
+end
