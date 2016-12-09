@@ -25,7 +25,9 @@ if have_petsc
     import MiniPETSc.zeroRows!
     import MiniPETSc.serializeToZero
 else
-    @reexport using MPI
+    import DummyMPI
+    MPI = DummyMPI
+    export MPI
 end
 
 export dofs, processor_id
