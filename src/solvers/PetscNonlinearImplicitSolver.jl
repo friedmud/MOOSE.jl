@@ -75,20 +75,27 @@ function solve!(solver::PetscNonlinearImplicitSolver; nl_max_its=10, nl_rel_tol=
             initial_residual = current_residual_norm
         end
 
-        println(i, " NL |R|: ", current_residual_norm, ", |R|/|R1|: ", current_residual_norm / initial_residual)
+        if MPI.Comm_rank(MPI.COMM_WORLD) == 0
+            println(i, " NL |R|: ", current_residual_norm, ", |R|/|R1|: ", current_residual_norm / initial_residual)
+        end
 
         if current_residual_norm / initial_residual < nl_rel_tol
-            println("Relative Tolerance Reached!")
+            if MPI.Comm_rank(MPI.COMM_WORLD) == 0
+                println("Relative Tolerance Reached!")
+            end
             return
         end
 
         if current_residual_norm < nl_abs_tol
-            println("Absolute Tolerance Reached!")
+            if MPI.Comm_rank(MPI.COMM_WORLD) == 0
+                println("Absolute Tolerance Reached!")
+            end
             return
         end
 
-        print("  Starting Solve... ")
-        flush(STDOUT)
+        if MPI.Comm_rank(MPI.COMM_WORLD) == 0
+            println("  Starting Solve... ")
+        end
 
         # Solve the system
         ksp = PetscKSP()
@@ -99,10 +106,14 @@ function solve!(solver::PetscNonlinearImplicitSolver; nl_max_its=10, nl_rel_tol=
         solve!(ksp, solver.rhs, delta)
         stopLog(main_perf_log, "linear_solve")
 
-        println("Done.")
+        if MPI.Comm_rank(MPI.COMM_WORLD) == 0
+            println("Done.")
+        end
 
         plusEquals!(solver.solution, delta)
     end
 
-    println("Warning!! Solve did NOT converge to within the set tolerances!")
+    if MPI.Comm_rank(MPI.COMM_WORLD) == 0
+        println("Warning!! Solve did NOT converge to within the set tolerances!")
+    end
 end
