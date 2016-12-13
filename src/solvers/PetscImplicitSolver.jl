@@ -61,11 +61,7 @@ function solve!(solver::PetscImplicitSolver; assemble=true)
     end
 
     if assemble
-        if MPI.Comm_rank(MPI.COMM_WORLD) == 0
-            assembleResidualAndJacobian(solver, solver.system)
-        else
-            assembleResidualAndJacobian(solver, solver.system)
-        end
+        assembleResidualAndJacobian(solver, solver.system)
     end
 
     assemble!(solver.solution)
@@ -74,12 +70,9 @@ function solve!(solver::PetscImplicitSolver; assemble=true)
     ksp = PetscKSP()
     setOperators(ksp, solver.mat)
     scale!(solver.rhs, -1.0)
+
     startLog(main_perf_log, "linear_solve")
-    if MPI.Comm_rank(MPI.COMM_WORLD) == 0
-        solve!(ksp, solver.rhs, solver.solution)
-    else
-        solve!(ksp, solver.rhs, solver.solution)
-    end
+    solve!(ksp, solver.rhs, solver.solution)
     stopLog(main_perf_log, "linear_solve")
 
     stopLog(main_perf_log, "solve()")

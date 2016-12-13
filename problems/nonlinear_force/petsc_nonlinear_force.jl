@@ -27,7 +27,7 @@ addBC!(diffusion_system, DirichletBC(u, [2], 1.0))
 initialize!(diffusion_system)
 
 # Create a solver and solve
-solver = JuliaDenseNonlinearImplicitSolver(diffusion_system)
+solver = PetscNonlinearImplicitSolver(diffusion_system)
 solve!(solver, nl_max_its=5)
 
 # Output

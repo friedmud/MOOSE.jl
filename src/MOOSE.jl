@@ -41,7 +41,7 @@ export Variable, System, addVariable!, addKernel!, addBC!, initialize!
 export Solver, solve!, JuliaDenseImplicitSolver, JuliaDenseNonlinearImplicitSolver
 
 if have_petsc
-    export PetscImplicitSolver
+    export PetscImplicitSolver, PetscNonlinearImplicitSolver
 end
 
 export Kernel, Diffusion, Convection
@@ -113,6 +113,7 @@ include("solvers/JuliaDenseNonlinearImplicitSolver.jl")
 
 if have_petsc
     include("solvers/PetscImplicitSolver.jl")
+    include("solvers/PetscNonlinearImplicitSolver.jl")
 end
 
 include("kernels/Diffusion.jl")
