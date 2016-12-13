@@ -1,5 +1,3 @@
-using MiniPETSc
-
 @testset "PIS" begin
     mesh = buildSquare(0,1,0,1,2,2)
 

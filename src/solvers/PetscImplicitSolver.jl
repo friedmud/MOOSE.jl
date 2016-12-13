@@ -1,8 +1,24 @@
-typealias PetscImplicitSolver LinearImplicitSolver{PetscMat, PetscVec, GhostedPetscVec}
+" Linear solver that uses PETSc "
+type PetscImplicitSolver <: DenseImplicitSolver
+    " The System the solve will be done for "
+    system::System
 
-function PetscImplicitSolver(system::System)
-    # Leaves the ghosted_solution undefined on purpose
-    return PetscImplicitSolver(system, false, PetscMat(), PetscVec(), PetscVec(), GhostedPetscVec)
+    " The 'stiffness matrix' "
+    mat::PetscMat
+
+    " The RHS (force vector) "
+    rhs::PetscVec
+
+    " The solution vector "
+    solution::PetscVec
+
+    " Whether or not this Solver has been initialized "
+    initialized::Bool
+
+    " The ghosted solution vector.  This is last because we're going to leave it unitialized in the beginning. "
+    ghosted_solution::GhostedPetscVec
+
+    PetscImplicitSolver(system::System) = new(system, PetscMat(), PetscVec("rhs"), PetscVec("solution"), false)
 end
 
 
@@ -32,15 +48,39 @@ function updateGhostedSolution!(solver::PetscImplicitSolver)
     copy!(solver.ghosted_solution, solver.solution)
 end
 
+"""
+    Solve using the built-in dense matrix/vector types
 
-" Solve a linear system Ax = b "
-function solveLinearSystem!(A::PetscMat, x::PetscVec, b::PetscVec)
-    assemble!(x)
+    `assemble` controls whether or not the system will be assembled automatically
+"""
+function solve!(solver::PetscImplicitSolver; assemble=true)
+    startLog(main_perf_log, "solve()")
+
+    if !solver.initialized
+        initialize!(solver)
+    end
+
+    if assemble
+        if MPI.Comm_rank(MPI.COMM_WORLD) == 0
+            assembleResidualAndJacobian(solver, solver.system)
+        else
+            assembleResidualAndJacobian(solver, solver.system)
+        end
+    end
+
+    assemble!(solver.solution)
 
     # Solve the system
     ksp = PetscKSP()
-    setOperators(ksp, A)
-    scale!(b, -1.0)
+    setOperators(ksp, solver.mat)
+    scale!(solver.rhs, -1.0)
+    startLog(main_perf_log, "linear_solve")
+    if MPI.Comm_rank(MPI.COMM_WORLD) == 0
+        solve!(ksp, solver.rhs, solver.solution)
+    else
+        solve!(ksp, solver.rhs, solver.solution)
+    end
+    stopLog(main_perf_log, "linear_solve")
 
-    solve!(ksp, b, x)
+    stopLog(main_perf_log, "solve()")
 end

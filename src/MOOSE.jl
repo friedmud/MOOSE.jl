@@ -38,7 +38,7 @@ export buildSquare
 
 export Variable, System, addVariable!, addKernel!, addBC!, initialize!
 
-export Solver, solve!, ImplicitSolver, JuliaDenseImplicitSolver, JuliaDenseNonlinearImplicitSolver
+export Solver, solve!, JuliaDenseImplicitSolver, JuliaDenseNonlinearImplicitSolver
 
 if have_petsc
     export PetscImplicitSolver
@@ -108,7 +108,6 @@ include("solvers/Solver.jl")
 include("solvers/Assembly.jl")
 include("outputs/Output.jl")
 
-include("solvers/ImplicitSolver.jl")
 include("solvers/JuliaDenseImplicitSolver.jl")
 include("solvers/JuliaDenseNonlinearImplicitSolver.jl")
 
