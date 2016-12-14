@@ -34,7 +34,7 @@ export dofs, processor_id
 
 export Node, Element, Mesh
 
-export buildSquare
+export buildSquare, readXDAMesh
 
 export Variable, System, addVariable!, addKernel!, addBC!, initialize!
 
@@ -92,6 +92,7 @@ include("mesh/Element.jl")
 include("mesh/BoundaryInfo.jl")
 include("mesh/Mesh.jl")
 include("mesh/Generation.jl")
+include("mesh/XDAReader.jl")
 include("partitioners/Partitioner.jl")
 include("partitioners/SimplePartitioner.jl")
 

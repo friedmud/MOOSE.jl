@@ -1,0 +1,75 @@
+libMesh-1.1.0
+4	 # number of elements
+9	 # number of nodes
+.	 # boundary condition specification file
+.	 # subdomain id specification file
+n/a	 # processor id specification file
+n/a	 # p-level specification file
+8	 # type size
+0	 # uid size
+0	 # pid size
+8	 # sid size
+0	 # p-level size
+8	 # eid size
+8	 # side size
+8	 # bid size
+0	 # subdomain id to name map
+4	 # n_elem at level 0, [ type sid (n0 ... nN-1) ]
+5 0 0 1 2 3
+5 0 1 4 5 2
+5 0 3 2 6 7
+5 0 2 5 8 6
+0.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00
+5.0000000000000000e-01 0.0000000000000000e+00 0.0000000000000000e+00
+5.0000000000000000e-01 5.0000000000000000e-01 0.0000000000000000e+00
+0.0000000000000000e+00 5.0000000000000000e-01 0.0000000000000000e+00
+1.0000000000000000e+00 0.0000000000000000e+00 0.0000000000000000e+00
+1.0000000000000000e+00 5.0000000000000000e-01 0.0000000000000000e+00
+5.0000000000000000e-01 1.0000000000000000e+00 0.0000000000000000e+00
+0.0000000000000000e+00 1.0000000000000000e+00 0.0000000000000000e+00
+1.0000000000000000e+00 1.0000000000000000e+00 0.0000000000000000e+00
+0	 # presence of unique ids
+4	 # sideset id to name map
+4	 # vector length
+0	 1	 2	 3	 
+4	 # vector length
+bottom	 right	 top	 left	 
+8	 # number of side boundary conditions
+0 0 0
+0 3 3
+1 0 0
+1 1 1
+2 2 2
+2 3 3
+3 1 1
+3 2 2
+4	 # nodeset id to name map
+4	 # vector length
+0	 1	 2	 3	 
+4	 # vector length
+bottom	 right	 top	 left	 
+12	 # number of nodesets
+0 0
+0 3
+1 0
+3 3
+4 0
+4 1
+5 1
+6 2
+7 2
+7 3
+8 2
+8 1
+4	 # sideset id to name map
+4	 # vector length
+0	 1	 2	 3	 
+4	 # vector length
+bottom	 right	 top	 left	 
+0	 # number of edge boundary conditions
+4	 # sideset id to name map
+4	 # vector length
+0	 1	 2	 3	 
+4	 # vector length
+bottom	 right	 top	 left	 
+0	 # number of shellface boundary conditions
