@@ -3,7 +3,7 @@ MOOSE.jl currently requires a few packages that need to be manually installed.
 
 ## Parallelism
 
-If you are not planning on running in parallel you can skip this section and go right to installing Julia Packages...
+If you are *not* planning on running in parallel you can _skip_ this section and go right to installing Julia Packages...
 
 To run in parallel you need a working installation of MPI and PETSc.  MOOSE.jl has been tested with MPICH and MVAPICH, but any working MPI installation should work fine.
 
@@ -56,8 +56,22 @@ To get all of the dependencies and MOOSE.jl... within a Julia 0.5 session do:
 Pkg.clone("https://github.com/KristofferC/ContMechTensors.jl.git")
 Pkg.clone("https://github.com/friedmud/JuAFEM.jl.git")
 Pkg.clone("https://github.com/friedmud/DummyMPI.jl.git")
+```
+
+If you went through the steps to set up MPI and PETSc then you should be able to use the `MiniPETSc` package:
+
+```julia
 Pkg.clone("https://github.com/friedmud/MiniPETSc.jl.git")
+```
+
+Then, installing MOOSE.jl can be done via:
+
+```julia
 Pkg.clone("https://github.com/friedmud/MOOSE.jl.git")
 ```
 
 If you are new to Julia, you should know that these commands typically install the packages within the `~/.julia/v0.5` directory in your home directory.  If you navigate there you will see the `MOOSE` directory.  Inside of that directory are example problems and tests that can be instructive on how to use MOOSE.jl.
+
+Below is a schematic showing most of the Julia packages that MOOSE.jl ultimately depends on:
+
+![MOOSE.jl Dependencies](images/moose_deps.png)

@@ -2,3 +2,6 @@ site_name: MOOSE.jl
 pages:
     - Home: index.md
     - Installation: installation.md
+    - Systems: systems.md
+    - Examples:
+        - Laplacian: examples/laplacian.md
