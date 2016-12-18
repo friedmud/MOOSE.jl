@@ -2,9 +2,17 @@ site_name: MOOSE.jl
 pages:
     - Home: index.md
     - Installation: installation.md
-    - Systems: systems.md
     - Examples:
         - 1. Laplacian: examples/laplacian.md
         - 2. Auto-Diff: examples/auto_diff.md
         - 3. PETSc: examples/petsc.md
         - 4. Parallel: examples/parallel.md
+    - Systems:
+        - Kernel: systems/kernel.md
+
+markdown_extensions:
+   - pymdownx.arithmatex # http://facelessuser.github.io/pymdown-extensions/extensions/arithmatex/
+
+extra_javascript:
+  - mathjax-config.js
+  - https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML
