@@ -1,6 +1,6 @@
 # 2D Laplacian
 
-As a simple example, let's solve `-div grad u = 0` on a square domain, with `u=0` on the left and `u=1` on the right.  Just a simple Laplacian problem.
+As a simple example, let's solve $-\nabla \cdot \nabla u$ on a square domain, with $u=0$ on the left and $u=1$ on the right.  Just a simple Laplacian problem.
 
 (TLDR: If you just want to skip ahead and run it... check out the `problems/simple_diffusion` directory for a pre-baked script that solves this problem)
 
@@ -42,7 +42,7 @@ mesh = buildSquare(0, 1, 0, 1, 10, 10);
 
 The `System` holds all of the information about the equations to be solved and geometry.  It must be initialized with a `Mesh`
 
-The only real choice when creating a `System` is what type to use for the underlying floating point type.  The parametric type you use is either `Float64` or `Dual{N, Float64}`.  The choice is dependent on whether you want your Jacobian matrices built from manually coded functions (for `Float64`) or whether you want to use automatic differentiation (`Dual`).  We'll talk more about this later.
+The only real choice when creating a `System` is what type to use for the underlying floating point type.  The parametric type you use is either `Float64` or `Dual{N, Float64}`.  The choice is dependent on whether you want your Jacobian matrices built from manually coded functions (for `Float64`) or whether you want to use [automatic differentiation (`Dual`)](../examples/auto_diff.md).
 
 For now, let's use manually coded Jacobian functions:
 
@@ -64,7 +64,7 @@ That line of code adds a variable named `u` to the `System` and returns a handle
 
 ## Add `Kernel`s
 
-Each term (operator) in your PDE will be represented by one or more `Kernel`s.  The `-grad^2` operator (in weak form) is what is referred to as the `Diffusion` `Kernel` in MOOSE.  It's already built-in (see `src/kernels/Diffusion.jl`) so the only thing we need to do is apply that operator to our new variable (`u`):
+Each term (operator) in your PDE will be represented by one or more [Kernels](../systems/kernel.md).  The $-\nabla \cdot \nabla$ operator (in weak form) is what is referred to as the `Diffusion` `Kernel` in MOOSE.  It's already built-in (see [src/kernels/Diffusion.jl](https://github.com/friedmud/MOOSE.jl/blob/master/src/kernels/Diffusion.jl) so the only thing we need to do is apply that operator to our new variable (`u`):
 
 ```julia
 addKernel!(diffusion_system, Diffusion(u));
@@ -74,15 +74,16 @@ The `Diffusion(u)` part of that statement creates a `Diffusion` `Kernel` that is
 
 If we had more terms in our PDE we would continue to call `addKernel!()`, creating each term and applying it to the appropriate `Variable`.
 
-This brings up a good point about MOOSE.  All of the objects are "reusable".  The `Diffusion` `Kernel` represents the "idea" of the `-grad^2` operator.  That `Diffusion` `Kernel` can be applied to as many variables as you want.  So, if you are solving 16 equations and a `-grad^2` shows up in each one... then you can apply the same `Diffusion` operator to each variable.  This gives us a large amount of code reuse and flexibility.
+This brings up a good point about MOOSE.  All of the objects are "reusable".  The `Diffusion` `Kernel` represents the "idea" of the $-\nabla\cdot\nabla$ operator.  That `Diffusion` `Kernel` can be applied to as many variables as you want.  So, if you are solving 16 equations and a $-\nabla\cdot\nabla$ shows up in each one... then you can apply the same `Diffusion` operator to each variable.  This gives us a large amount of code reuse and flexibility.
 
 ## `BoundaryCondition`s
 
-Now that we've taken care of our PDE operators, we need to handle the boundary conditions (BCs).  We said we wanted `u=0` on the left of the domain and `u=1` on the right.  A `u=something` BC (aka "essential" BC, aka "BC of the first kind", etc.) is a type of `BoundaryCondition` we refer to as a `DirichletBC`.  Just as with `Kernel`s we can reuse the same object, applying it on different boundaries with different values.
+Now that we've taken care of our PDE operators, we need to handle the boundary conditions [(BCs)](../systems/boundary_condition.md).  We said we wanted $u=0$ on the left of the domain and $u=1$ on the right.  A $u=something$ BC (aka "essential" BC, aka "BC of the first kind", etc.) is a type of [BoundaryCondition](../systems/boundary_condition.md) we refer to as a [DirichletBC](https://github.com/friedmud/MOOSE.jl/blob/master/src/bcs/DirichletBC.jl).  Just as with `Kernel`s we can reuse the same object, applying it on different boundaries with different values.
 
 Speaking of "boundaries"... our built-in mesh generator automatically added some "sidesets" and "nodesets" in our `Mesh`.  These are sets of boundary geometry that allow us to specify where `BoundaryCondition`s are applied.  `DirichletBC` objects operate on "nodesets".
 
 For the built-in mesh generator the sidesets/nodesets are as follows:
+
  * 1: Bottom
  * 2: Right
  * 3: Top
