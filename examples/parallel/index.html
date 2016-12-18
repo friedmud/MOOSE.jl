@@ -121,6 +121,7 @@
             <li><a href="#mesh-partitioning">Mesh Partitioning</a></li>
             <li><a href="#running-in-parallel">Running in Parallel</a></li>
             <li><a href="#small-issue-compiling">Small Issue: "Compiling"</a></li>
+            <li><a href="#scalability">Scalability</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
@@ -153,7 +154,10 @@
 <pre><code class="bash">julia compile.jl &amp;&amp; mpiexec -n 4 julia myscript.jl
 </code></pre>
 
-<p>That will run the short <code>compile.jl</code> script in serial first... ensuring that MOOSE.jl is compiled and then launch the real script in parallel...</p></div>
+<p>That will run the short <code>compile.jl</code> script in serial first... ensuring that MOOSE.jl is compiled and then launch the real script in parallel...</p>
+<h2 id="scalability">Scalability</h2>
+<p>Scalability of MOOSE.jl depends quite a lot on the linear solver/preconditioner you choose to use with PETSc and the particular problem you are solving.  That said, the finite-element assembly part of MOOSE.jl does scale well.  The result below is for a coupled set of 25 PDEs being assembled on a 400x400 element mesh on up to 3,072 processors.</p>
+<p><img alt="Scalability" src="../../images/scalability.png" /></p></div>
         </div>
 
         <footer class="col-md-12">
