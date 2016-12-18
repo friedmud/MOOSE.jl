@@ -9,6 +9,7 @@ pages:
         - 4. Parallel: examples/parallel.md
     - Systems:
         - Kernel: systems/kernel.md
+        - BoundaryCondition: systems/boundary_condition.md
 
 markdown_extensions:
    - pymdownx.arithmatex # http://facelessuser.github.io/pymdown-extensions/extensions/arithmatex/
