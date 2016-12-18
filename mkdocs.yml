@@ -6,3 +6,5 @@ pages:
     - Examples:
         - 1. Laplacian: examples/laplacian.md
         - 2. Auto-Diff: examples/auto_diff.md
+        - 3. PETSc: examples/petsc.md
+        - 4. Parallel: examples/parallel.md
