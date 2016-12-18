@@ -49,3 +49,9 @@ julia compile.jl && mpiexec -n 4 julia myscript.jl
 ```
 
 That will run the short `compile.jl` script in serial first... ensuring that MOOSE.jl is compiled and then launch the real script in parallel...
+
+## Scalability
+
+Scalability of MOOSE.jl depends quite a lot on the linear solver/preconditioner you choose to use with PETSc and the particular problem you are solving.  That said, the finite-element assembly part of MOOSE.jl does scale well.  The result below is for a coupled set of 25 PDEs being assembled on a 400x400 element mesh on up to 3,072 processors.
+
+ ![Scalability](../images/scalability.png)
