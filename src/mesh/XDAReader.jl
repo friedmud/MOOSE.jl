@@ -107,7 +107,7 @@ function readXDAMesh(filename::String)
         has_sideset_names = parse(Int64, lines[current_line][1])
         current_line += 1
 
-        if has_sideset_names == 1
+        if has_sideset_names > 0
             # Vector length of sideset IDs with names
             current_line += 1
 
@@ -115,7 +115,7 @@ function readXDAMesh(filename::String)
             sideset_ids = [parse(Int64, id) + 1 for id in lines[current_line]]
             current_line += 1
 
-            println("sideset_ids: ", sideset_ids)
+#            println("sideset_ids: ", sideset_ids)
 
             for bid in sideset_ids
                 boundary_info.side_list[bid] = Array{ElemSidePair}(0)
@@ -149,7 +149,7 @@ function readXDAMesh(filename::String)
         has_nodeset_names = parse(Int64, lines[current_line][1])
         current_line += 1
 
-        if has_nodeset_names == 1
+        if has_nodeset_names > 0
             # Num nodesets with names
             current_line += 1
 
