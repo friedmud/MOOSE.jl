@@ -5,6 +5,7 @@ As a simple example, let's solve `-div grad u = 0` on a square domain, with `u=0
 (TLDR: If you just want to skip ahead and run it... check out the `problems/simple_diffusion` directory for a pre-baked script that solves this problem)
 
 To solve this problem we're going to need to:
+
  1. Start `using MOOSE`
  1. Create the Geometry
  1. Create a `System`

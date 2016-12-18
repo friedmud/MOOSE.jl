@@ -4,4 +4,5 @@ pages:
     - Installation: installation.md
     - Systems: systems.md
     - Examples:
-        - Laplacian: examples/laplacian.md
+        - 1. Laplacian: examples/laplacian.md
+        - 2. Auto-Diff: examples/auto_diff.md
