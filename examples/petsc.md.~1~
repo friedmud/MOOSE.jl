@@ -1,0 +1,5 @@
+# Using PETSc
+
+While Julia has quite a lot of linear algebra capability built-in, it is still missing a few things.  In particular, Julia does not contain built-in iterative linear solvers (like Krylov solvers).  Even though there are some third-party Krylov solvers (such [KrylovMethods.jl](https://github.com/lruthotto/KrylovMethods.jl) ) they lack a lot of capability including preconditioning and parallelism.
+
+For this reason, it is useful to utilize the [PETSc library](https://www.mcs.anl.gov/petsc/) from Argonne National Laboratory.  PETSc is a mature code-base providing parallel Krylov solvers and preconditioners that are a perfect match for FEM.  To use them, I have developeda Julia wrapper: [MiniPETSc.jl](https://github.com/friedmud/MiniPETSc.jl)

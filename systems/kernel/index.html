@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>Kernel - MOOSE.jl</title>
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.5.0.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/highlight.css">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+	
+	<script src="../../js/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/highlight.pack.js"></script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="../..">MOOSE.jl</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                    <li >
+                        <a href="../../installation/">Installation</a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Examples <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            
+<li >
+    <a href="../../examples/laplacian/">1. Laplacian</a>
+</li>
+                            
+<li >
+    <a href="../../examples/auto_diff/">2. Auto-Diff</a>
+</li>
+                            
+<li >
+    <a href="../../examples/petsc/">3. PETSc</a>
+</li>
+                            
+<li >
+    <a href="../../examples/parallel/">4. Parallel</a>
+</li>
+                        </ul>
+                    </li>
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Systems <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            
+<li class="active">
+    <a href="./">Kernel</a>
+</li>
+                            
+<li >
+    <a href="../boundary_condition/">BoundaryCondition</a>
+</li>
+                        </ul>
+                    </li>
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                    <li >
+                        <a rel="next" href="../../examples/parallel/">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../boundary_condition/">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#kernel">Kernel</a></li>
+            <li><a href="#kernel-sub-type">Kernel Sub-Type</a></li>
+            <li><a href="#residual">Residual</a></li>
+            <li><a href="#jacobian">Jacobian</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="kernel">Kernel</h1>
+<p>Note: I also recommend reading <a href="http://mooseframework.org/wiki/MooseTraining/FEM/">Finite Elements The MOOSE Way</a> over on the MOOSE Wiki for more information.</p>
+<p>A <code>Kernel</code> represents a piece of physics.  Typically a Kernel will embody one or more terms in a partial differential equation (PDE).  It's useful to think of a Kernel as an "operator" that is then applied to variables within a PDE.  By utilizing multiple Kernels all operating on the same variables large, complex PDEs can be easily solved for.</p>
+<p>A Kernel has three major pieces:</p>
+<ol>
+<li>A <code>type</code> that is a sub-type of <code>Kernel</code></li>
+<li>A <code>computeQpResidual()</code> function that works with that <code>type</code> and computes the value of the Kernel at one quadrature point.</li>
+<li>An <em>optional</em> <code>computeQpJacobian()</code> function computing the derivative of the residual at one quadrature point.</li>
+</ol>
+<p>The <code>computeQpJacobian()</code> function is only optional if you're using Automatic Differentiation.  For more information see the <a href="../../examples/auto_diff/">AutomaticDifferentiation Example</a>.</p>
+<h2 id="kernel-sub-type">Kernel Sub-Type</h2>
+<p>Defining a new Kernel starts by sub-typing <code>Kernel</code>.  The sub-type <em>must</em> include a member variable named <code>u</code> that is a <code>Variable</code>.  <code>u</code> is always the name for the Variable <em>this</em> Kernel is operating on.  Here is an example from <code>Diffusion.jl</code>:</p>
+<pre><code class="julia">type Diffusion &lt;: Kernel
+    u::Variable
+end
+</code></pre>
+
+<p>In addition to defining <code>u</code> a Kernel can also take in other parameters.  For example, <code>Convection</code> in <code>Convection.jl</code> takes in a constant "velocity vector":</p>
+<pre><code class="julia">type Convection &lt;: Kernel
+    u::Variable
+
+    velocity::Vec{2, Float64}
+end
+</code></pre>
+
+<p>That <code>velocity</code> can then be used in <code>computeQpResidual()</code>/<code>computeQpJacobian()</code>.</p>
+<p>Finally, the Kernel sub-type should also have member variables for <em>coupled</em> variables like so:</p>
+<pre><code class="julia">type CoupledConvection &lt;: Kernel
+    u::Variable
+    other_var::Variable
+end
+</code></pre>
+
+<h2 id="residual">Residual</h2>
+<p>A Kernel embodies the weak form of a term in a PDE.  <code>computeQpResidual()</code> is where the value of that term is computed.</p>
+<h3 id="weak-form">Weak Form</h3>
+<p>To form the "weak form" of a PDE several steps must be taken:</p>
+<ol>
+<li>Write down strong form of PDE.</li>
+<li>Rearrange terms so that zero is on the right of the equals sign.</li>
+<li>Multiply the whole equation by a "test" function \(\phi\).</li>
+<li>Integrate the whole equation over the domain \(\Omega\).</li>
+<li>Integrate by parts (use the divergence theorem) to get the desired derivative order on your functions and simultaneously generate boundary integrals.</li>
+</ol>
+<p>Let's try it on an example: a "Convection-Diffusion" PDE:</p>
+<ol>
+<li>
+<p>Write the strong form of the equation: \(- \nabla\cdot k\nabla u + \vec{\beta} \cdot \nabla u = f  \phantom{\displaystyle \int}\)</p>
+</li>
+<li>
+<p>Rearrange to get zero on the right-hand side: \(- \nabla\cdot k\nabla u + \vec{\beta} \cdot \nabla u - f = 0 \phantom{\displaystyle \int}\)</p>
+</li>
+<li>
+<p>Multiply by the test function \(\phi\): \(- \phi \left(\nabla\cdot k\nabla u\right) + \phi\left(\vec{\beta} \cdot \nabla u\right) - \phi f = 0 \phantom{\displaystyle \int}\)</p>
+</li>
+<li>
+<p>Integrate over the domain \(\Omega\): \({-\int_\Omega\phi \left(\nabla\cdot k\nabla u\right)} + \int_\Omega\phi\left(\vec{\beta} \cdot \nabla u\right) - \int_\Omega\phi f = 0\)</p>
+</li>
+<li>
+<p>Apply the divergence theorem to the diffusion term: \(\int_\Omega\nabla\phi\cdot k\nabla u - \int_{\partial\Omega} \phi \left(k\nabla u \cdot \hat{n}\right) + \int_\Omega\phi\left(\vec{\beta} \cdot \nabla u\right) - \int_\Omega\phi f = 0\)</p>
+</li>
+<li>
+<p>Write in inner product notation. Each term of the equation will inherit from an existing MOOSE type as shown below.</p>
+</li>
+</ol>
+<p>\[\underbrace{\left(\nabla\phi, k\nabla u \right)}_{Kernel} -
+  \underbrace{\langle\phi, k\nabla u\cdot \hat{n} \rangle}_{BoundaryCondition} +
+  \underbrace{\left(\phi, \vec{\beta} \cdot \nabla u\right)}_{Kernel} -
+  \underbrace{\left(\phi, f\right)}_{Kernel} = 0 \phantom{\displaystyle \int}\]</p>
+<p>For this equation we would create/use three <code>Kernel</code> objects and one <code>BoundaryCondition</code>.  The "inner-product" notation above shows what the "residual" should be for each term.  The <code>computeQpResidual()</code> function needs to compute what's inside each one of these integrals.</p>
+<h3 id="computeqpresidual"><code>computeQpResidual()</code></h3>
+<p>Creating a <code>computeQpResidual()</code> function for a Kernel is done by specializing <code>computeQpResidual()</code> for the new Kernel:</p>
+<pre><code class="julia">@inline function computeQpResidual(kernel::NewKernelType, qp::Int64, i::Int64)
+    return residual_computation
+end
+</code></pre>
+
+<p>where <code>NewKernelType</code> represents the new type of Kernel you just create by sub-typing Kernel.  This utilizes Julia's "multiple dispatch" capability so that this new function will get called whenever a residual is needed for the new Kernel.</p>
+<p><code>qp</code> is an index to use as the current quadrature point (for numerical integration) while <code>i</code> is the index of the current shape function.</p>
+<h4 id="laplacian-example">Laplacian Example</h4>
+<p>Let's take a concrete example of a Laplacian operator.</p>
+<ol>
+<li>Strong form: \(-\nabla\cdot\nabla u\)</li>
+<li>Weak form: \(\int_\Omega \nabla u \cdot \nabla \phi\)</li>
+</ol>
+<p>Then what goes in <code>computeQpResidual()</code> is: \(\nabla u \cdot \nabla \phi\) like so:</p>
+<pre><code class="julia">@inline function computeQpResidual(kernel::Diffusion, qp::Integer, i::Integer)
+    u = kernel.u
+
+    return u.grad[qp] ⋅ u.grad_phi[qp][i]
+end
+</code></pre>
+
+<p>Getting <code>u</code> like that is not strictly necessary.  It's simply done to make the code a littler nicer (so that we're not repeating <code>kernel.u</code> all the time).</p>
+<h2 id="jacobian">Jacobian</h2>
+<p>A Jacobian is the derivative of the residual.  To define this for a Kernel we'll create a <code>computeQpJacobian()</code> function that computes the derivative of the residual with respect to one particular degree of freedom at one quadrature point.</p>
+<p>Note: Jacobians are NOT required if you're using Automatic Differentiation!  In that case these functions won't even be called!</p>
+<h3 id="math">Math</h3>
+<p>Since \(u \approx \sum u_j \phi_j\) that implies that \(\frac{\partial u}{\partial u_k} = \phi_k\).  That is: the derivative of the variable with respect to one of its coefficients simply "picks off" the shape function that multiplies that coefficient.  The same applies to the gradient as well.</p>
+<h3 id="computeqpjacobian"><code>computeQpJacobian()</code></h3>
+<p>The actual implementation is similar to <code>computeQpResidual()</code>:</p>
+<pre><code class="julia">@inline function computeQpJacobian(kernel::NewKernelType, v::Variable, qp::Integer, i::Integer, j::Integer)::Float64
+    return jacobian_calculation
+end
+</code></pre>
+
+<p>Where <code>v::Variable</code> is the variable MOOSE wants the derivative with respect to and <code>j::Integer</code> is an index for the "jth" shape function (the one corresponding to the "trial" function: the one supporting the variable <em>this</em> Kernel is acting on).</p>
+<p>What needs to be done is to use the <code>id</code> field in <code>v</code> to see which variable this variable is... and then if it's a variable that is used in this Kernel's residual computation then return the value of the derivative of the residual with respect to that variable.</p>
+<p>Let's do an example:</p>
+<h3 id="example">Example</h3>
+<p>Continuing with the Laplacian example from above...</p>
+<ol>
+<li>Strong form: \(-\nabla\cdot\nabla u\)</li>
+<li>Weak form: \(\int_\Omega \nabla u \cdot \nabla \phi\)</li>
+<li>Jacobian: \(\frac{\partial}{\partial u_j}\int_\Omega \nabla u \cdot \nabla \phi = \int_\Omega \nabla \phi \cdot \nabla \phi\)</li>
+</ol>
+<p>To code that up looks like:</p>
+<pre><code class="julia">@inline function computeQpJacobian(kernel::Diffusion, v::Variable, qp::Integer, i::Integer, j::Integer)::Float64
+    u = kernel.u
+
+    if u.id == v.id
+        return v.grad_phi[qp][j] ⋅ u.grad_phi[qp][i]
+    end
+
+    return 0
+end
+</code></pre>
+
+<p>You can clearly see the \(\nabla \phi \cdot \nabla \phi\) part... and it is only when MOOSE is looking for the derivative of this new Kernel with respect to the variable it's acting on (found by checking <code>u.id == v.id</code>).</p>
+<p>The <code>return 0</code> at the end means that if MOOSE is looking for the derivative of this Kernel with respect to any other variable... then the value will always be zero (because there are no coefficients of that variable involved in the residual of this Kernel).</p></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>var base_url = '../..';</script>
+        <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+        <script src="../../js/base.js"></script>
+        <script src="../../mathjax-config.js"></script>
+        <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>4. Parallel - MOOSE.jl</title>
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.5.0.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/highlight.css">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+	
+	<script src="../../js/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/highlight.pack.js"></script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="../..">MOOSE.jl</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                    <li >
+                        <a href="../../installation/">Installation</a>
+                    </li>
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Examples <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            
+<li >
+    <a href="../laplacian/">1. Laplacian</a>
+</li>
+                            
+<li >
+    <a href="../auto_diff/">2. Auto-Diff</a>
+</li>
+                            
+<li >
+    <a href="../petsc/">3. PETSc</a>
+</li>
+                            
+<li class="active">
+    <a href="./">4. Parallel</a>
+</li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Systems <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            
+<li >
+    <a href="../../systems/kernel/">Kernel</a>
+</li>
+                            
+<li >
+    <a href="../../systems/boundary_condition/">BoundaryCondition</a>
+</li>
+                        </ul>
+                    </li>
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                    <li >
+                        <a rel="next" href="../petsc/">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../../systems/kernel/">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#going-parallel">Going Parallel</a></li>
+            <li><a href="#mpi">MPI</a></li>
+            <li><a href="#mesh-partitioning">Mesh Partitioning</a></li>
+            <li><a href="#running-in-parallel">Running in Parallel</a></li>
+            <li><a href="#small-issue-compiling">Small Issue: "Compiling"</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="going-parallel">Going Parallel</h1>
+<p>This example builds off of the <a href="../petsc/">PETSc Example</a>.  To run in parallel you must have <code>PETSc</code> setup as described in the <a href="../../installation/">Installation Guide</a>.</p>
+<h2 id="mpi">MPI</h2>
+<p>MPI stands for "Message Passing Interface".  It is <a href="http://mpi-forum.org">a standard</a> describing how computers can efficiently send messages to eachother when working in a cluster environment.  Although it is still evolving it is also extremely mature having been around for more than 20 years.</p>
+<p>MOOSE.jl uses MPI through <a href="https://github.com/JuliaParallel/MPI.jl">MPI.jl</a>: MPI bindings for Julia.  It picks up MPI.jl through <a href="https://github.com/friedmud/MiniPETSc.jl">MiniPETSc.jl</a>: the Julia PETSc bindings.  Using MPI, MOOSE.jl can scale to thousands of processors on large clusters.</p>
+<h2 id="mesh-partitioning">Mesh Partitioning</h2>
+<p>The most straightforward way to parallelize a FEM solve is by splitting the domain (the elements) up over the available processors.  In this way each processor receives a portion of the domain to work on and the load is balanced.  However, just choosing any random splitting of elements is non-optimal.  Communication overhead can ruin parallel scalability.  Therefore it is necessary to seek domain splittings that minimize the amount of communication.  This process is called: "Partitioning" the mesh.</p>
+<p>MOOSE.jl utilize a library called <a href="http://glaros.dtc.umn.edu/gkhome/metis/metis/overview">METIS</a> for this purpose.  METIS is very mature graph partitioning software.  Given the connectivity graph METIS will attempt to solve for an optimal partitioning that balances the load and reduces communication costs.</p>
+<p>MOOSE.jl retrieves METIS through Julia bindings that are currently located within MOOSE.jl (but may be moved to their own package later).  Currently, it is required that METIS be built into the PETSc library you are using (see <a href="../../installation/">Installation</a>).</p>
+<h2 id="running-in-parallel">Running in Parallel</h2>
+<p>With MPI, PETSc and METIS in place: the only thing you need to do to run a MOOSE.jl script in parallel is to make sure you are using a <code>Petsc*</code> solver (like <code>PetscImplicitSolver</code>) and then launch your script using <code>mpiexec</code> (or <code>mpirun</code> depending on your MPI installation):</p>
+<pre><code class="bash">mpiexec -n 4 julia yourscript.jl
+</code></pre>
+
+<p>That will launch <code>4</code> MPI processes that will all work together to solve the problem.</p>
+<p>That's it!  No other code needs to change!</p>
+<h2 id="small-issue-compiling">Small Issue: "Compiling"</h2>
+<p>Unfortunately: Julia does not really expect to be launched simultaneously like this... and one of the things Julia does (pre-compiling Packages) can run into trouble.  The issue is that if you have modified (or just installed) a Julia Package, the first time you attempt to run a script that uses it Julia will "pre-compile" that package to make it faster to launch scripts that use it in the future.</p>
+<p>Unfortunately, when Julia does this it tries to write files within a directory in your home directory.  If multiple Julia instances are launched simultaneously they will ALL attempt to precompile the package and all attempt to overwrite eachother's pre-compiled files.  This leads to crazy errors.</p>
+<p>To combat this: always make sure to run your MOOSE.jl scripts <em>without</em> <code>mpiexec</code> first... to get MOOSE.jl (and everything it depends on) to pre-compile in serial.  Then you can run in parallel.</p>
+<p>In fact: it's not necessary to run a full solve.  Simply create a file that has this in it (I call mine <code>compile.jl</code>):</p>
+<pre><code class="julia">using MOOSE
+</code></pre>
+
+<p>And then you can execute your real script like this:</p>
+<pre><code class="bash">julia compile.jl &amp;&amp; mpiexec -n 4 julia myscript.jl
+</code></pre>
+
+<p>That will run the short <code>compile.jl</code> script in serial first... ensuring that MOOSE.jl is compiled and then launch the real script in parallel...</p></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>var base_url = '../..';</script>
+        <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+        <script src="../../js/base.js"></script>
+        <script src="../../mathjax-config.js"></script>
+        <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
