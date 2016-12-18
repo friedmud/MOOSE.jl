@@ -1,4 +1,5 @@
 site_name: MOOSE.jl
+repo_url: https://github.com/friedmud/MOOSE.jl
 pages:
     - Home: index.md
     - Installation: installation.md
